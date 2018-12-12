@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body,
+        html {
+            background: #ccc;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            background:#000000;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width="600" height="400"></canvas>
+</body>
+
+</html>
+<script>
+    var crx = document.querySelector('canvas');
+    var hb = crx.getContext('2d');
+
+    var oW = document.documentElement.clientWidth;
+    var oH = document.documentElement.clientHeight;
+    crx.width = oW;
+    crx.height = oH;
+
+    var pos = [];
+    var oldArr = []
+    x = rand(57, crx.width);
+    y = rand(57, crx.height);
+ 
+
+    pos.push({
+        x:  - 50,
+        y:  - 28.5,
+        speedX: -3,
+        speedY: -1.73
+    }, {
+        x:  + 50,
+        y:  - 28.5,
+        speedX: 3,
+        speedY: -1.73
+    }, {
+        x: 0,
+        y: 57,
+        speedX: 0,
+        speedY: 3.46
+    }, {
+        x: 0,
+        y:  - 57,
+        speedX: 0,
+        speedY: -3.46
+    }, {
+        x: 50,
+        y: 28.5,
+        speedX: 3,
+        speedY: 1.73
+    }, {
+        x: - 50,
+        y:28.5,
+        speedX: -3,
+        speedY: 1.73
+    }, )
+
+
+ 
+ 
+    var n = 1;
+    setInterval(function () {
+    hb.save();
+hb.clearRect(-x, -y, crx.width-x, crx.height-y);
+hb.translate(x,y);
+
+n++;
+hb.rotate(dtr(n));
+hb.clearRect(-x, -y, crx.width-x, crx.height-y);
+        for (var i = 0; i < pos.length; i++) {
+            pos[i].x += pos[i].speedX;
+            pos[i].y += pos[i].speedY;
+            if (pos[i].x <=-x  || pos[i].x > crx.width-x|| pos[i].y <= -y || pos[i].y >= crx.height-y)
+                for (var j = 0; j < pos.length; j++) {
+                    pos[j].speedX = 0;
+                    pos[j].speedY = 0;
+                }
+            drawPoint(pos[i]);
+        }
+
+        hb.strokeStyle = `rgba(${rand(0,255)},${rand(0, 255)},${rand(0, 255)},${rand(5, 10)/10})`;
+        hb.beginPath();
+        hb.moveTo(pos[0].x, pos[0].y);
+        for (var i = 0; i < pos.length; i++) {
+            hb.lineTo(pos[i].x, pos[i].y);
+            if ((i + 1) % 3 == 0 && i + 1 != pos.length) {
+                hb.closePath();
+                hb.moveTo(pos[i + 1].x, pos[i + 1].y);
+            }
+        }
+        hb.closePath();
+
+        var arr = [];
+        for (var i = 0; i < pos.length; i++) {
+            arr.push({
+                x: pos[i].x,
+                y: pos[i].y
+            })
+        }
+        var len = 5;
+        oldArr.push(arr);
+        if (oldArr.length > len) {
+            oldArr.shift();
+        }
+        for (var i = 0; i < oldArr.length; i++) {
+            hb.beginPath();
+            hb.moveTo(oldArr[i][0].x, oldArr[i][0].y);
+            for (var j = 0; j < oldArr[i].length; j++) {
+                hb.lineTo(oldArr[i][j].x, oldArr[i][j].y);
+                if ((j + 1) % 3 == 0 && j + 1 != pos.length) {
+                    hb.closePath();
+                    hb.moveTo(oldArr[i][j + 1].x, oldArr[i][j + 1].y);
+                }
+            }
+            hb.closePath();
+        }
+        hb.stroke();
+        hb.restore();
+    }, 100)
+
+
+    function rand(n, m) {
+        return Math.round(Math.random() * (m - n) + n)
+    }
+
+    function drawPoint(p) {
+        hb.fillStyle = `white`;
+        hb.fillRect(p.x, p.y, 1, 1);
+    }
+    function dtr(n){
+        return Math.PI/180*n;
+    }
+</script>

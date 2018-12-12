@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+		html,body{height: 100%;}
+		#btn{
+			
+			position: fixed;
+			right: 10px;
+			bottom: 20px;
+			color:white;
+			width:200px;
+			text-align: center;
+			height: 60px;
+			display:none;}
+			#imgs{
+				left: 50%;
+				position: absolute;
+			transform: translateX(-50%);
+			}
+			#imgs>img{float: left;}
+		</style>
+	</head>
+	<body>
+		<div id="imgs">
+		</div>
+		<button id="btn">加载更多</button>
+		
+		<script src="js/jquery-2.2.4.js"></script>
+		<script src="js/loading.js"></script>
+		<script type="text/javascript">
+		class Load{
+			constructor(options){
+				this.url = options.url;
+				this.imgs=options.imgs;
+				this.btn=options.btn;
+				this.loadsnum=0;
+				this.load()
+			}
+		load(){
+				let that = this;
+				$.ajax({	
+					url:this.url,
+					beforeSend:function(){
+						$.Loading({
+						bool:true,
+						loadings:`<img src="img/loading.gif">`
+						});
+					},	
+					success:function(res){
+						that.res = res[that.loadsnum];
+						
+						setTimeout(function(){
+								$.Loading({bool:false});
+								that.display();
+								},2000);
+					}
+				})
+			}
+		display(){
+				let str = "";
+				let s=this.res.length;
+				for(let i=0;i<s;i++)
+				str+=`<img src="${this.res[i]}">`;
+				this.imgs.append(str);
+				this.loadsnum+=1;
+				this.init()
+			}
+		init(){
+			let that=this;
+			$(window).on("scroll",function(){
+				console.log($("html").scrollTop(),that.imgs.height())
+			if(that.loadsnum!=0&&$("html").scrollTop()>=that.imgs.height()-$(window).height()-200)
+			that.btn.show();
+			else that.btn.hide();	
+			})
+			
+			this.btn.on("click",function(){
+				that.load();
+			})
+			
+			}
+}
+new Load({
+			url:"http://localhost/loading/loading.json",
+			imgs:$("#imgs"),
+			btn:$("#btn")
+})	
+		</script>
+	</body>
+</html>

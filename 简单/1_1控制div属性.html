@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+.outer{width: 480px;height: 400px;margin: 50px auto  }
+button{width: 70px ;height: 30px;text-align:center;line-height:30px;background: #eeeeee;margin: 5px 10px}
+    .needChange{width: 100px ;height: 100px;background:#000000;border: 1px solid #CCCCCC ;margin: 20px auto;}
+</style>
+<body>
+<div class="outer">
+    <button>变宽</button>
+    <button>变高</button>
+    <button>变色</button>
+    <button>隐藏</button>
+    <button>重置</button>
+<div class="needChange"></div>
+</div>
+<script>
+    var outer=document.getElementsByClassName("outer")[0];
+    var needChange=document.getElementsByClassName("needChange")[0];
+//    var btns=document.getElementsByTagName("button");
+    outer.addEventListener("click",clickHandler);
+    function clickHandler(e) {
+  if(e.target.nodeName==="BUTTON"){
+  switch(e.target.innerText){
+      case "变宽":needChange.style.width="200px";
+      break;
+      case "变高":needChange.style.height="200px";
+          break;
+      case "变色":needChange.style.background=randomColor();
+          break;
+      case "隐藏":needChange.style.display="none";
+          break;
+      case "重置":needChange.style.cssText="";
+          break;
+  }}
+    }
+    function randomColor() {
+        var arr=[];
+        for (var i=0;i<3;i++) arr.push(Math.floor(Math.random()*256));
+        return "rgb("+arr.join()+")";
+    }
+</script>
+
+</body>
+</html>

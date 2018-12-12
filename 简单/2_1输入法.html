@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0}
+        .outer{width: 80px;margin:20px auto;}
+        li>a{display:block;text-decoration: none;color: inherit;height: 25px;padding: 3px}
+        ul li{list-style: none}
+        ul{display:none;border: 1px #00ffff solid;margin-top: 10px;color: cyan}
+        ul>:last-child {border-top:1px cyan solid;}
+        ul,button{cursor: pointer}
+    </style>
+</head>
+<body>
+<div class="outer">
+<button>输入法</button>
+    <ul>
+        <li><a href="javascript:void (0)">手写</a></li>
+        <li><a href="javascript:void (0)">拼音</a></li>
+        <li><a href="javascript:void (0)">关闭</a></li>
+    </ul>
+</div>
+    <script>
+        var ul=document.querySelector("ul");
+        var btn=document.querySelector("button");
+
+//        var bool=false;
+        btn.addEventListener("click",clickHandler)
+        ul.addEventListener("mouseover",mouseHandler)
+        ul.addEventListener("mouseout",mouseHandler)
+        ul.lastElementChild.addEventListener("click",clickHandler)
+        function mouseHandler(e){
+//            if (e.type==="mouseover"){
+//            if (e.target!=ul) e.target.style.background="red";}
+//        else if (e.target!=ul) e.target.style.background="none";
+            e.target.style.background = (e.target!==ul&&e.type==="mouseover")? "red":"none";
+        }
+
+        function clickHandler(e) {
+//             if (e.target===btn)
+     /*        {bool = !bool;
+              ul.style.display = bool ? "block" : "none";
+
+          }*/
+//        else  { bool=false;ul.style.display="none";}
+    ul.style.display=ul.style.display==="block"?"none":"block";
+       }
+    </script>
+
+
+</body>
+</html>

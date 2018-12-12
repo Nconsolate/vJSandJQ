@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *
+        {
+            margin: 0;
+            padding: 0;
+        }
+        div
+        {
+            width: 50px;
+            height: 50px;
+            background-color: deepskyblue;
+            border-radius: 25px;
+            position: absolute;
+
+        }
+    </style>
+</head>
+<body>
+<div></div>
+<script>
+    var div=document.querySelector("div");
+    document.addEventListener("click",clickHandler);
+    var x=0;
+    var y=0;
+    var list=[];
+
+    function clickHandler(e) {
+        for(var j=0;j<list.length;j++){
+            list[j]=null;
+        }
+        list.length=0;
+//        x1是当前div的x坐标
+        var x1=div.offsetLeft;
+//        y1是当前div的y坐标
+        var y1=div.offsetTop;
+//        x2是当前鼠标点击的x坐标
+        var x2=e.x-div.offsetWidth/2;
+//        y2是当前鼠标点击的y坐标
+        var y2=e.y-div.offsetHeight/2;
+//        求取两点之间距离
+        var disc=Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2));
+        x=(x2-x1)/disc*5;
+        y=(y2-y1)/disc*5;
+        list.push({x:x1,y:y1});
+        for(var i=1;i<disc/5;i++){
+            list.push({x:list[i-1].x+x,y:list[i-1].y+y});
+        }
+        list.reverse();
+
+    }
+
+    animation();
+    function animation() {
+        requestAnimationFrame(animation);
+        if(list.length===0) return;
+        var point=list.pop();
+        div.style.left=point.x+"px";
+        div.style.top=point.y+"px";
+
+    }
+</script>
+</body>
+</html>

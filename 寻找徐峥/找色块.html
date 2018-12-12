@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>找不同色块的游戏（构造函数）</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    #box{
+        width: 600px;
+        height: 600px;
+        margin: auto;
+        margin-top: 100px;
+    }
+    #score{
+        width: 180px;
+        height: 50px;
+        line-height: 150%;
+        font-size: 2em;
+        position: absolute;
+        top: 30px;
+        left: 35%;
+    }
+    .creat{
+        float: left;
+        border-radius: 100%;
+    }
+</style>
+<body>
+<p id="score">关卡：1</p>
+<p id="box"></p>
+<script>
+    var n=1;//关卡值
+    var Create=new creat(3);//定义构造函数对象，传入一个参数（开始时的布局3x3）
+    Create.go();//调用构造函数里面的函数属性
+    function creat(event){//定义构造函数creat
+        var obox=document.getElementById("box");
+        this.className="creat";//设置className
+        this._creat=null;//事先创建出一个属性_creat用于指向一个对象
+        this.go=function(){//创建颜色块的方法函数
+            var colorNum1=Math.floor(Math.random()*253)+1;//随机数取一个值范围是（1~254）防止白色块出现
+            var colorNum2=Math.floor(Math.random()*253)+1;
+            var colorNum3=Math.floor(Math.random()*253)+1;
+            this.color="rgb("+colorNum1+","+colorNum2+","+colorNum3+")";//定义rgb颜色属性
+            this.diffOpacity=0.7;//用于改变其中一个颜色快的颜色(这里可以自定义改变透明度)
+            for(var i=0;i<event*event;i++){//创建循环循环event*2次，每当点击颜色块后event变化
+                this._creat=document.createElement("p");//动态创建一个p赋给this._creat属性
+                this._creat.style.width=Math.floor(600/event)+"px";//设置p的宽，高，颜色和className
+                this._creat.style.height=Math.floor(600/event)+"px";
+                this._creat.style.backgroundColor=this.color;
+                this._creat.className=this.className;//在样式中给p左浮动
+                obox.appendChild(this._creat);//作为孩子添加到obox中
+            }
+            var op=document.getElementsByClassName("creat");//获取一下创建好的p
+            var numRandom=parseInt(Math.random()*op.length);//随机取到其中一个改变其透明度值
+            op[numRandom].style.opacity=this.diffOpacity;
+            op[numRandom].onclick=function(){
+                /*给取到的p绑定事件，当点击时先清空obox中元素即上一关卡的p
+                *获取score改变n的值
+                *改变event的值，可以自定义难度
+                *再调用一下调用构造函数里面的go函数属性,创建一组新的元素
+                */
+                var oScore=document.getElementById("score");
+                n++;
+                oScore.innerHTML="关卡："+n+"";
+                obox.innerHTML="";
+                event++;
+                Create.go();
+            }
+        }
+    }
+</script>
+</body>
+</html>

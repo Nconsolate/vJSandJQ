@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .bg
+        {
+            width: 300px;
+            height: 300px;
+            border-radius: 150px;
+            background: url("img/a.jpg");
+            background-size: 100% 100%;
+            position: relative;
+        }
+        .needle
+        {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 120px solid #000000;
+            position: absolute;
+            transform-origin: 5px 120px;
+            transform: rotate(0deg);
+            left: 145px;
+            top:30px;
+            transition: all 3s;
+        }
+        .bn{
+            width: 30px;
+            height: 30px;
+            background-color: greenyellow;
+            border-radius: 15px;
+            position: absolute;
+            left: 135px;
+            top:137px;
+        }
+    </style>
+</head>
+<body>
+<div class="bg">
+    <div class="needle" id="needle"></div>
+    <div class="bn" id="bn"></div>
+</div>
+<script>
+    //根据id获取页面中html元素
+    var bn=document.getElementById("bn");
+    var needle=document.getElementById("needle");
+
+    //        这个数组是1，2，3，4，5的最大角度
+    var arr=[30,120,270];//1-5等级最大角度
+    //        这个数组是0等奖的最大角度
+    var arr1=[90,210,330];//不中奖
+    /* bn.onclick=function () {
+
+     }*/
+    //       给bn增加一个事件侦听，当鼠标点击bn时，执行函数clickHandler
+    bn.addEventListener("click",clickHandler);
+    /*
+    *   当点击时bn按钮时
+    *   1、获取随机几等奖
+    *   2、获取随机获得角度
+    *   3、给角度加5圈
+    *   4、设置指针的角度
+    *
+    * */
+    function clickHandler(e) {
+//            Math.floor向下舍入
+
+        var arrn=[];
+
+        for (j=0;j<5;j++)
+            arrn.push(2);
+        for (k=0;k<20;k++)
+            arrn.push(3);
+        arrn.push(1);
+        for(i=0;i<10000;i++)
+            arrn.push(0);
+        arrn.length=10000;
+       arrn.sort(function () {
+           return Math.random()-0.5;
+
+       })
+
+
+        var n=arrn[Math.floor(Math.random()*10000)];//求随机第几等奖，0-5求整形
+//            getAward()输入一个奖项，就可以返回这个奖项的随机角度
+        var num=getAward(n);//根据几等奖获得角度
+
+
+        num+=1800;//多转5圈
+
+//            设置needle这个div的样式中transform的值是旋转（角度是上面求出来的角度）
+        needle.style.transform="rotate("+num+"deg)";//设置指针旋转
+        console.log(n);
+    }
+
+
+    /*
+    *   获取奖项随机角度
+    *  n   是几等奖
+    *
+    *
+    * */
+    function getAward(n) {
+//            默认角度值是0
+        var deg=0;
+        if(n===0){
+//                随机取出数组arr1中的任意一个数值
+            deg=arr1[Math.floor(Math.random()*arr1.length)];
+        }else{
+//                如果n是奖项时,从数组中取出对应的最大角度
+            deg=arr[n-1];
+        }
+//            随机求取 deg-36-------deg
+//                     最小的         最大
+        deg=getRandom(deg-60,deg);
+        return deg;
+    }
+
+    /*
+    *  获取从最小到最大之间的随机数
+    *
+    * */
+    function getRandom(min,max) {
+        return Math.floor(Math.random()*(max-min)+min);
+    }
+
+</script>
+</body>
+</html>

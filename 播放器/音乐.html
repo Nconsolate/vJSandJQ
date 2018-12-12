@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        h3{
+            font-weight: normal;
+            font-size:14px;
+        }
+        h3 a.active{
+            padding-right:30px;
+            background:url('play.gif') no-repeat right center ;
+        }
+    </style>
+</head>
+
+<body>
+    <div>音乐播放器</div>
+    <audio src="mp3/千千阙歌.mp3" id="a1" controls>
+    </audio>
+    <div id="list">
+        <h3><a href="javascript:;" class="active">千千阙歌</a></h3>
+        <h3><a href="javascript:;">夜的钢琴曲</a></h3>
+        <h3><a href="javascript:;">小苹果</a></h3>
+        <h3><a href="javascript:;">时间都去哪儿了</a></h3>
+        <h3><a href="javascript:;">雨的印记</a></h3>
+    </div>
+    <div class="buttonArr">
+        <input type="button" value="单曲循环" id="btn1">
+        <input type="button" value="随机播放" id="btn2">
+        <input type="button" value="顺序播放" id="btn3">
+        <input type="button" value="列表播放" id="btn4">
+    </div>
+</body>
+
+</html>
+<script>
+    function Mp3(options) {
+
+        this.audio = options.audio;
+        this.btnarr = options.btnarr;
+        this.list = options.list;
+        this.a = options.a;
+        this.index = 0;
+        this.state = "顺序播放";
+        this.init();
+    }
+    Mp3.prototype = {
+        constructor:Mp3,
+        display: function () {
+            console.log(this.index)
+            this.audio.src = `mp3/${this.a[this.index].text}.mp3`;
+            this.displayActive();
+            this.a[this.index].className = "active";
+            this.audio.play();
+        },
+        init: function () {
+            var that = this;
+            for (var i = 0; i < this.a.length; i++) this.a[i].index = i;
+            this.audio.onended = function () {
+                that.setChange();
+            }
+            this.list.onclick = function (e) {
+                var e = e || window.event;
+                var target = e.target || e.srcElement;
+                if (target.nodeName === "A")
+                    that.index = target.index;
+                that.display();
+            }
+            this.btnarr.onclick = function (e) {
+                var e = e || window.event;
+                var target = e.target || e.srcElement;
+                if (target.nodeName === "INPUT")
+                    that.state = target.value;
+            }
+
+        },
+        displayActive: function () {
+            for (var i = 0; i < this.a.length; i++)
+                this.a[i].className = "";
+        },
+        setChange: function () {
+            switch (this.state) {
+                case "单曲循环":
+                    break;
+                case "随机播放":
+                    this.index = Math.round(Math.random() * (this.a.length - 1));
+                    break;
+                case "顺序播放":
+                    if (this.index == this.a.length - 1)
+                        return;
+                    else this.index++;
+                    break;
+                case "列表播放":
+                    if (this.index == this.a.length - 1)
+                        this.index = 0;
+                    else this.index++;
+                    break;
+                    break;
+            }
+            this.display();
+        }
+
+    }
+
+    new Mp3({
+        audio: document.querySelector("#a1"),
+        btnarr: document.querySelector(".buttonArr"),
+        a: document.querySelectorAll("a"),
+        list: document.querySelector("#list")
+    })
+</script>

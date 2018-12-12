@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #progress {
+            width: 600px;
+            height: 30px;
+            background: #ccc;
+        }
+
+        #bar {
+            width: 0%;
+            height: 30px;
+            background: red;
+        }
+    </style>
+</head>
+
+<body>
+    <video  id="oVideo"></video>
+    <div id="progress">
+        <div id="bar"></div>
+    </div>
+    <div id="btns">
+    </div>
+</body>
+<script>
+let data = ["mp4/1.mp4","mp4/2.mp4"];
+    class Video {
+        constructor(options) {
+            this.data = options.data ? options.data : [];
+            this.video = options.video ? options.video : document.querySelector("video");
+            this.btns = options.btns;
+            this.progress = options.progress ? options.progress : false;
+            this.bar = options.bar ? options.bar : false;
+            this.start = options.start ? options.start : true;
+            this.speed = options.speed ? options.speed : false;
+            this.reverse = options.reverse ? options.reverse : false;
+            this.volume = options.volume ? options.volume : false;
+            this.muted = options.muted ? options.muted : false;
+            this.playbackRate = options.playbackRate ? options.playbackRate : false;
+            this.fullScreen = options.fullScreen ? options.fullScreen : false;
+            this.index = 0;
+            this.init();
+        }
+        init() {
+            let str = "";
+            if (this.start)
+                str += `<input type="button" value="播放" state=0 id="_start">`;
+            if (this.speed)
+                str += `<input type="button" value="快进" id="_speed">`;
+            if (this.reverse)
+                str += `<input type="button" value="快退" id="_reverse">`;
+            if (this.volume)
+                str +=
+                `<input type="button" value="音量+" id="_volume1">
+                    <input type="button" value="音量-" id="_volume2">`;
+            if (this.muted)
+                str += `<input type="button" value="静音" mutedFlag=true id="_muted">`;
+            if (this.playbackRate)
+                str +=
+                `<input type="button" value="倍速+" id="_playbackRate1">
+                    <input type="button" value="倍速-" id="_playbackRate2">`;
+            if (this.fullScreen)
+                str += `<input type="button" value="全屏" id="_fullScreen">`;
+            this.btns.innerHTML = str;
+            this.changeData();
+            this.display();
+        }
+        changeData() {
+            this.video.src = `${this.data[this.index]}`;
+            
+        }
+        display() {
+            let _this = this;
+            if (this.start) document.querySelector("#_start").onclick = function () {
+                this.state = !this.state;
+                this.state ? _this.video.play() : _this.video.pause();
+                this.value = this.state ? "暂停" : "播放";
+            };
+            if (this.speed) document.querySelector("#_speed").onclick = function () {
+                _this.video.currentTime++;
+            };
+            if (this.reverse)
+                document.querySelector("#_reverse").onclick = function () {
+                    _this.video.currentTime--;
+                };
+            if (this.volume) {
+                document.querySelector("#_volume1").onclick = function () {
+                    _this.video.volume = _this.video.volume >= 0.95 ? 0.95 : _this.video.volume += 0.05;
+                };
+                document.querySelector("#_volume2").onclick = function () {
+                    _this.video.volume = _this.video.volume <= 0.05 ? 0.05 : _this.video.volume -= 0.05;
+                };
+
+            }
+            if (this.muted)
+                document.querySelector("#_muted").onclick = function () {
+                    this.mutedFlag = !this.mutedFlag;
+                    _this.video.muted = this.mutedFlag ? true : false;
+                    this.value = this.mutedFlag ? '取消静音' : '静音';
+                };
+            if (this.playbackRate) {
+                document.querySelector("#_playbackRate1").onclick = function () {
+                    _this.video.playbackRate++;
+                };
+                document.querySelector("#_playbackRate2").onclick = function () {
+                    _this.video.playbackRate--;
+                };
+            };
+            if (this.fullScreen)
+                document.querySelector("#_fullScreen").onclick = function () {
+                    if (_this.video.requestFullscreen) {
+                        _this.video.requestFullscreen();
+                    } else if (_this.video.mozRequestFullScreen) {
+                        _this.video.mozRequestFullScreen();
+                    } else if (el.webkitRequestFullscreen) {
+                        _this.video.webkitRequestFullscreen();
+                    } else if (_this.video.msRequestFullscreen) {
+                        _this.video.msRequestFullscreen();
+                    }
+                };
+            if (this.bar && this.progress)
+                _this.video.ontimeupdate = function () {
+                    _this.bar.style.width = _this.video.currentTime / _this.video.duration * 100 + '%'
+                    _this.progress.onmousedown = function (e) {
+                        _this.video.currentTime = (e.pageX - _this.progress.offsetLeft) / _this.progress.offsetWidth *
+                            _this.video.duration;
+                        document.onmousemove = function (e) { //滑动
+                            _this.video.currentTime = (e.pageX - _this.progress.offsetLeft) / _this.progress
+                                .offsetWidth * _this.video.duration;
+                        }
+                        document.onmouseup = function () {
+                            document.onmousemove = document.onmouseup = null;
+                        }
+                    }
+
+                }
+            this.video.onended = function () {
+                _this.index++;
+if(_this.index==_this.data.length)_this.index=0;
+                _this.changeData();
+document.querySelector("#_start").dispatchEvent(new Event('click'));
+document.querySelector("#_start").dispatchEvent(new Event('click'));
+            }
+        }
+    }
+    new Video({
+        data: data,
+        video: document.querySelector("#oVideo"),
+        progress: document.querySelector("#progress"),
+        bar: document.querySelector("#bar"),
+        btns: document.querySelector("#btns"),
+        start: true,
+        speed: true,
+        reverse: true,
+        volume: true,
+        muted: true,
+        playbackRate: true,
+        fullScreen: true
+    })
+</script>
+
+</html>

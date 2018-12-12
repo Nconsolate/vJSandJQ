@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0}
+        .outer{width: 600px;margin: 20px auto;
+        overflow: hidden;border: 1px solid #000000}
+        .tab{background: #000000;text-align: center;border-bottom: 1px solid #000000;
+            color: #ffffff;overflow: hidden}
+        .tab>li{height: 40px;line-height: 40px;width: 100px;
+            float: left;list-style: none;}
+        .tab>.current{background: #eeeeee;color: #000000}
+        .content>ul{padding: 5px 0;display: none}
+        .content>.ulcurrent{display: block;}
+        .content>ul>li{margin:5px 30px;list-style: square;font-size: 14px}
+    </style>
+</head>
+<body>
+<div class="outer">
+    <ul class="tab">
+        <li class="current">第一课</li>
+        <li>第二课</li>
+        <li>第三课</li>
+    </ul>
+    <div class="content">
+        <ul class="ulcurrent">
+                <li>网页特效原理分析</li>
+                <li>响应用户操作</li>
+                <li>提示框效果</li>
+                <li>事件驱动</li>
+                <li>元素属性操作</li>
+                <li>动手编写第一个JS特效</li>
+                <li>引入函数</li>
+                <li>网页换肤效果</li>
+                <li>展开/收缩播放列表效果</li>
+            </ul>
+        <ul>
+            <li>改变网页背景颜色</li>
+            <li>函数传参</li>
+            <li>高重用性函数的编写</li>
+            <li>126邮箱全选效果</li>
+            <li>循环及遍历操作</li>
+            <li>调试器的简单使用</li>
+            <li>典型循环的构成</li>
+            <li>for循环配合if判断</li>
+            <li>className的使用</li>
+            <li>innerHTML的使用</li>
+            <li>戛纳印象效果</li>
+            <li>数组</li>
+            <li>字符串连接</li>
+        </ul>
+        <ul>
+            <li>JavaScript组成：ECMAScript、DOM、BOM，JavaScript兼容性来源</li>
+            <li>JavaScript出现的位置、优缺点</li>
+            <li>变量、类型、typeof、数据类型转换、变量作用域</li>
+            <li>闭包：什么是闭包、简单应用、闭包缺点</li>
+            <li>运算符：算术、赋值、关系、逻辑、其他运算符</li>
+            <li>程序流程控制：判断、循环、跳出</li>
+            <li>命名规范：命名规范及必要性、匈牙利命名法</li>
+            <li>函数详解：函数构成、调用、事件、传参数、可变参、返回值</li>
+            <li>定时器的使用：setInterval、setTimeout</li>
+            <li>定时器应用：站长站导航效果</li>
+            <li>定时器应用：自动播放的选项卡</li>
+            <li>定时器应用：数码时钟</li>
+            <li>程序调试方法</li>
+        </ul>
+
+    </div>
+</div>
+<script>
+    var tab=document.getElementsByClassName("tab")[0];
+    var content=document.getElementsByClassName("content")[0];
+    var cur,ulcur;
+    for (var i=0;i<3;i++) tab.children[i].index=i;
+        tab.addEventListener("mouseover",mouseHandler)
+   function mouseHandler(e) {
+   if (e.target.nodeName==="LI") {
+       if (cur) {cur.className = "";ulcur.className="";}
+           else { tab.children[0].className="";
+                    content.children[0].className="";}
+            cur = e.target;
+            ulcur= content.children[e.target.index];
+            cur.className = "current";
+            ulcur.className="ulcurrent";
+   }
+    }
+</script>
+</body>
+</html>

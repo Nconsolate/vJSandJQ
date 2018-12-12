@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .outer{margin: 20px auto;width: 250px}
+        .outer>p:last-child>button{margin:0 30px ;width: 60px}
+        .changeDiv{font-size: 12px;
+            margin: 20px auto;width: 150px;height: 150px;
+            background: #000000;color: white;padding: 5px}
+    </style>
+</head>
+<body>
+<div class="outer">
+    <p>属性名： <input type="text"></p>
+    <p>属性值： <input type="text"></p>
+    <p><button>确认</button><button>重置</button></p>
+</div>
+<div class="changeDiv">
+    在上方输入框输入"属性名"及"属性值"，点击确定按钮查看效果。
+</div>
+<script>
+    var inp=document.getElementsByTagName("input")
+    var btn=document.getElementsByTagName("button");
+    var changeDiv=document.getElementsByClassName("changeDiv")[0];
+    btn[0].addEventListener("click",clickHandler);
+    btn[1].addEventListener("click",clickHandler);
+    function clickHandler(e) {
+        this===btn[1]?changeDiv.style.cssText="":changeDiv.style[inp[0].value]=inp[1].value;
+//                                                    changeStyle(changeDiv,inp[0].value,inp[1].value)
+    }
+function changeStyle(ele,name,value) { ele[name]=value;}
+
+</script>
+
+</body>
+</html>

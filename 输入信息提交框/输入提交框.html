@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html,body,input,form,table,tr,td,th,button{margin: 0;padding: 0;}
+        form{margin: 50px 100px}
+        table{border-collapse: collapse}
+        td,th{border:1px solid #000000;text-align: center}
+        span{margin-left: 20px; color: red;display: none}
+        .redHint{display: inline-block;}
+    </style>
+</head>
+<body>
+<form id="form" action="" method="get">
+姓名 <input type="text" id="name"><span>姓名输入错误，姓名验证必须是字符和数字、下划线组成。如zhangsan.</span><br>
+年龄 <input type="text" id="age"><span>请输入0-100之间的数字。</span><br>
+电话 <input type="text" id="phone"><span>请输入11位电话号码，例如13312345678</span><br>
+邮箱 <input type="text" id="mail"><span>请输入正确邮箱，例如111_abc@163.com</span><br>
+<button>添加</button>
+</form>
+<script>
+//    获取input列表，便于循环
+    var inputs=document.getElementsByTagName("input");
+//    获取input 便于单独调用
+    var name=document.getElementById("name");
+    var age=document.getElementById("age");
+    var phone=document.getElementById("phone");
+    var mail=document.getElementById("mail");
+//    获取添加按钮 该按钮总是在删除按钮前，所以下标为0
+    var btn=document.getElementsByTagName("button")[0];
+//    获取form便于将table都插入form
+    var form=document.getElementById("form");
+    var table;
+//    新建个数组，用于存入要添加的tr对象
+    var info=[];
+//    侦听添加按钮
+    btn.addEventListener("click",clickHandler);
+//
+    function clickHandler(e) {
+//     阻止系统默认行为，form表单一点击提交会自动刷新页面
+        e.preventDefault();
+//        声明个局部变量
+        var a = 0;
+        for (var i = 0; i < inputs.length; i++)
+        {   //若全不为空a则为4，否则为0 1 2 3 用于提示用户输入完整
+            a += checkInput(inputs[i]);
+//            用于清空输入错误后，input后面的红字样式
+            inputs[i].nextElementSibling.className="";}
+//                正则判断是否满足条件，若全满足则进入。
+        if (/^(\w.*)$/.test(name.value) && /^(\d|[1-9]\d|100)$/.test(age.value)
+            && /^1\d{10}$/.test(phone.value) && /^(.*\w)@(.*[a-zA-Z0-9])\.([Cc][Oo][mM])$/.test(mail.value)) {
+           //声明一个对象，用于存入输入的数据
+            var obj = {};
+            obj.name = name.value;
+            obj.age = age.value;
+            obj.phone = phone.value;
+            obj.mail = mail.value;
+//           用于清空input的value数据
+            for (var j = 0; j < inputs.length; j++) inputs[j].value = "";
+            //将数据对象存入数组中
+            info.push(obj);
+//            更新表格
+            updateTable();
+        }
+        else {
+//            如果a不等于4弹窗提示
+            if (a !== 4) alert("请输入完整");
+//            否则在判断
+            else {
+//                如果name错误，将后面的span显现出来提示,每个都独立，不相互影响，所以需要用
+//                4次if判断
+                if (!/^(\w.*)$/.test(name.value))
+                    name.nextElementSibling.className="redHint";
+//                如果age错误，将后面的span显现出来提示
+                if (!/^(\d|[1-9]\d|100)$/.test(age.value))
+                    age.nextElementSibling.className="redHint";
+                //                如果phone错误，将后面的span显现出来提示
+                if (!/^1\d{10}$/.test(phone.value))
+                    phone.nextElementSibling.className="redHint";
+                //                如果mail错误，将后面的span显现出来提示
+                if (!/^(.*\w)@(.*[a-zA-Z0-9])\.([Cc][Oo][mM])$/.test(mail.value))
+                    mail.nextElementSibling.className="redHint";
+            }
+        }
+    }
+
+    function updateTable() {
+//        如果table存在，就清空它。用于清空上一次添加生成的table
+        if(table){
+            table.remove();
+        }
+//        如果要添加的tr数组删除完了，则退出，不执行下面的
+        if(info.length===0)return;
+//        创建table
+        table=document.createElement("table");
+//        创建表头tr
+        var trH=document.createElement("tr");
+//        将表头放在table中
+        table.appendChild(trH);
+//        用于复制对象，不存在引用关系
+         var obj={};
+        Object.assign(obj,info[0]);
+//        添加（表头数据）obj的删除属性
+        obj.deleted="";
+//        循环创建表头的th，th的内容为表头数据的属性名 放在表头tr中
+        for(var str in obj){
+            var th=document.createElement("th");
+            th.textContent=str;
+            trH.appendChild(th);
+        }
+
+        for(var i=0;i<info.length;i++){
+            //        循环创建生成要创建的tr
+            var tr=document.createElement("tr");
+            for(var prop in info[i]){
+                var td=document.createElement("td");
+                td.textContent=info[i][prop];
+                tr.appendChild(td);
+            }
+//            循环生成删除按钮，按钮内容文本为“删除”
+            var dtd=document.createElement("td");
+            var btnd=document.createElement("button");
+            btnd.textContent="删除";
+            btnd.data=info[i];
+            btnd.addEventListener("click",removeClickHandler);
+//            删除按钮增加删除事件，当点击删除按钮，删除该行tr
+            dtd.appendChild(btnd);
+            tr.appendChild(dtd);
+            table.appendChild(tr);
+        }
+//        将处理好的table放在form表单中
+        form.appendChild(table);
+    }
+//    用于判断a的值来决定是否弹框提示有未输入的内容
+    function checkInput(elem) {
+        return elem.value.replace(/(^\s*)|(\s*$)/g,"").length!==0;
+    }
+    function removeClickHandler(e) {
+//        获取被点击的删除按钮在创建的数组中的位置，也就是第几个tr
+        var index=info.indexOf(this.data);
+//        删除这个数组中被点击的删除按钮所在的tr
+        info.splice(index,1);
+//        更新table表格
+        updateTable();
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .rollImage
+        {
+            overflow: hidden;
+            margin: auto;
+            position: relative;
+        }
+        .rollImage,.imgCon>img
+        {
+            width: 960px;
+            height: 320px;
+        }
+        .imgCon
+        {
+            width: 4800px;
+            height: 320px;
+            position: absolute;
+            left: 0;
+            font-size: 0;/*让图片之间距离取消*/
+            transition: all 3s;
+        }
+
+        .leftBn
+        {
+            position: absolute;
+            top:120px;
+            left:20px;
+        }
+        .rightBn
+        {
+            position: absolute;
+            top:120px;
+            right: 20px;
+        }
+        ul{
+            list-style: none;
+            position: absolute;
+            left: 370px;
+            bottom: 20px;
+        }
+        li{
+            width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            border: 1px solid #FF000099;
+            float: left;
+            margin-left: 20px;
+        }
+        li:first-of-type
+        {
+            background-color: rgba(255,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+<div class="rollImage">
+    <div class="imgCon">
+        <img src="img/a.jpeg">
+        <img src="img/b.jpeg">
+        <img src="img/c.jpeg">
+        <img src="img/d.jpeg">
+        <img src="img/e.jpeg">
+    </div>
+    <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+    <img src="img/left.png" class="leftBn">
+    <img src="img/right.png" class="rightBn">
+</div>
+<script>
+    //左边按钮
+    var leftBn=document.querySelector(".leftBn");
+    //        右边按钮
+    var rightBn=document.querySelector(".rightBn");
+    //        获取li的列表
+    var lis=document.getElementsByTagName("li");
+    //        获取图片容器
+    var imgCon=document.querySelector(".imgCon");
+    //        position是定位，是图片当前显示第几张，初始是第0张
+    var position=0;
+    var preLi;
+    //        增加侦听事件
+    addEvent();
+    /*
+    *  侦听事件函数
+    *  给所有的按钮和li圆点增加点击侦听事件
+    *
+    *
+    * */
+    function addEvent() {
+//           左按钮增加侦听点击事件，执行clickHandler函数
+        leftBn.addEventListener("click",clickHandler);
+//            右按钮增加侦听点击事件，执行clickHandler函数
+        rightBn.addEventListener("click",clickHandler);
+//            循环li小圆点的所有列表
+        for(var i=0;i<lis.length;i++){
+//                为了点击时知道当前点击的小圆点是第几个小圆点
+            lis[i].i=i;
+//                给每个小圆点增加点击事件，当点击时执行liClickHandler
+            lis[i].addEventListener("click",liClickHandler);
+        }
+        preLi=lis[0];
+    }
+    /*
+    *
+    *   左右按钮点击事件函数
+    *   如果当前点击的对象是leftBn做定位递减
+    *   如果当前点击的对象是rightBN做定位递增
+    *
+    * */
+    function clickHandler(e) {
+        e=e || window.event;
+//            如果当前点击对象是左边的按钮
+        if(this===leftBn){
+//                做定位递减
+            position--;
+//                如果条件语句内容执行的只有一句话，可以省略大括号
+//                如果定位小于0，切换到4，也就是最后一张图片的索引
+            if(position<0) position=4;
+//               如果点击的对象是右边的按钮
+        }else if(this===rightBn){
+//                定位递增
+            position++;
+//                如果定位大于4，表示超过最后一张图片，让定位回归到第0张图片，也就是第一张
+            if(position>4) position=0;
+        }
+//        执行轮播图片
+        rollImage1();
+    }
+    /*
+    *  li小圆点点击事件
+    *当点击小圆点定位到对应的图片，然后执行轮播
+    *
+    * */
+    function liClickHandler(e) {
+        e=e || window.event;
+//            因为再点击侦听的的时候设置了li的i属性，是第几个，因此我们这里直接可以将this.i赋值给position
+        position=this.i;
+//           执行轮播
+        rollImage1();
+    }
+
+
+    function rollImage1() {
+        imgCon.style.left=-960*position+"px";
+        if(preLi){
+            preLi.style.backgroundColor="rgba(255,0,0,0)";
+        }
+        preLi=lis[position];
+        preLi.style.backgroundColor="rgba(255,0,0,0.5)"
+    }
+</script>
+</body>
+</html>

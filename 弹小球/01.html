@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>\</title>
+    <style>
+        .wall{width: 600px;
+            height: 600px;
+        margin: 50px auto;
+        border: 1px solid #000000;
+        position: relative}
+        .ball{width: 50px;
+            height: 50px;
+        border-radius: 25px;
+        background: #ff0000;
+        position: absolute;}
+    </style>
+</head>
+<body>
+<div class="wall">
+    <div class="ball"></div>
+    <div class="ball"></div>
+    <div class="ball"></div></div>
+<script>
+    var wall=document.querySelector(".wall");
+    var ball=document.getElementsByClassName("ball");
+
+    var arr=[];
+    var n=-1;
+
+    var speedY=5;
+    var stateY="down";
+    var speedX=5;
+    var stateX="right";
+    var bool=false;
+
+    for (var i=0;i<ball.length;i++) {
+        ball[i].style.left = Math.floor(Math.random() * (wall.clientWidth - ball[i].clientWidth)) + "px";
+        ball[i].style.top = Math.floor(Math.random() * (wall.clientHeight - ball[i].clientHeight)) + "px";
+    }
+    wall.addEventListener("click",clickHandler)
+    function clickHandler(e) {
+        if (e.target.className === "ball") {
+            n++;
+            bool=!bool;
+            arr.push(e.target);
+
+        animation();
+    }}
+      function animation() {
+          var idr=window.requestAnimationFrame(animation);
+          if (!bool) return;
+        for (var q=0;q<arr.length;q++){
+
+        switch (stateY) {
+            case "down":
+                if (arr[n].offsetTop + arr[n].clientHeight >= wall.clientHeight) {
+                    stateY = "top";
+                    speedY = -speedY;
+                }break;
+            case  "top":
+                if (arr[n].offsetTop<=0)
+                {   stateY="down";
+                    speedY=-speedY;
+                }break;}
+        switch (stateX) {
+        case "right":
+          if (arr[n].offsetLeft + arr[n].clientHeight >= wall.clientHeight) {
+            stateX= "left";
+            speedX = -speedX;
+            }break;
+        case  "left":
+        if (arr[n].offsetLeft<=0)
+        {   stateX="right";
+            speedX=-speedX;
+        }break;}
+        arr[n].style.top = arr[n].offsetTop + speedY + "px";
+        arr[n].style.left = arr[n].offsetLeft + speedX + "px";
+        console.log(speedX,speedY)
+    }
+
+       }
+
+ /*   switch (state) {
+        case "down":
+            if (arr[n].offsetTop + arr[n].clientHeight >= wall.clientHeight) {
+                state = "top";
+                speed = -speed;
+            }
+            break;
+        case  "top":
+    if (speed>=0) {state = "down";
+    if (arr[n].offsetTop + arr[n].clientHeight >= wall.clientHeight) bool=false;
+        break;
+            }}
+        speed+=0.6;
+    arr[n].style.top = arr[n].offsetTop + speed + "px";
+    }*/
+
+//        if (bool) { if  (arr[n].offsetTop+arr[n].clientHeight>=wall.clientHeight)speed=-speed;
+
+
+
+</script>
+</body>
+</html>

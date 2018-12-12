@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body,
+        html {
+            background: #ccc;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            background: black;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width="600" height="400"></canvas>
+</body>
+
+</html>
+<script>
+    var crx = document.querySelector('canvas');
+    var hb = crx.getContext('2d');
+
+    var oW = document.documentElement.clientWidth;
+    var oH = document.documentElement.clientHeight;
+    crx.width = oW;
+    crx.height = oH;
+
+    var pos = [];
+    var oldArr = []
+    for (var i = 0; i < 5; i++) {
+        pos.push({
+            x: rand(0, crx.width),
+            y: rand(0, crx.height),
+            speedX: rand(-10, 10),
+            speedY: rand(-10, 10)
+        })
+
+    }
+    var n = 1;
+    setInterval(function () {
+        hb.clearRect(0, 0, crx.width, crx.height)
+        for (var i = 0; i < pos.length; i++) {
+            pos[i].x += pos[i].speedX;
+            pos[i].y += pos[i].speedY;
+            if (pos[i].x <= 0) {
+                pos[i].x = 0;
+                pos[i].speedX *= -1;
+            }
+            if (pos[i].x > crx.width) {
+                pos[i].x = crx.width;
+                pos[i].speedX *= -1;
+
+            }
+            if (pos[i].y <= 0) {
+                pos[i].y = 0;
+                pos[i].speedY *= -1;
+
+            }
+            if (pos[i].y >= crx.height) {
+                pos[i].y = crx.height;
+                pos[i].speedY *= -1;
+
+            }
+            drawPoint(pos[i]);
+        }
+
+hb.strokeStyle =`rgba(${rand(0,255)},${rand(0, 255)},${rand(0, 255)},${rand(5, 10)/10})`;
+        hb.beginPath();
+        hb.moveTo(pos[0].x, pos[0].y);
+        for (var i = 0; i < pos.length; i++) {
+            hb.lineTo(pos[i].x, pos[i].y);
+        }
+        hb.closePath();
+        hb.stroke()
+
+        var arr = [];
+        for (var i = 0; i < pos.length; i++) {
+            arr.push({
+                x: pos[i].x,
+                y: pos[i].y
+            })
+        }
+        var len = 100;
+        oldArr.push(arr);
+        if (oldArr.length > len) {
+            oldArr.shift();
+        }
+        for (var i = 0; i < oldArr.length; i++) {
+            hb.beginPath();
+            hb.moveTo(oldArr[i][0].x, oldArr[i][0].y);
+            for (var j = 0; j < oldArr[i].length; j++) {
+                hb.lineTo(oldArr[i][j].x, oldArr[i][j].y);
+            }
+            hb.closePath();
+            hb.stroke()
+        }
+
+    }, 16)
+
+
+    function rand(n, m) {
+        return Math.round(Math.random() * (m - n) + n)
+    }
+
+    function drawPoint(p) {
+hb.fillStyle = `white`;
+        hb.fillRect(p.x, p.y, 2, 2);
+    }
+</script>

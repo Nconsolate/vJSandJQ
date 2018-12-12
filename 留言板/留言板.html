@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0}
+        body{background: #000000}
+        li{list-style: none}
+        .bg{width: 620px;
+            height:500px;margin: 50px auto;
+            padding-left:20px;
+        background: #ffffff;
+        overflow-y: auto}
+        .bg>p{padding-top: 20px;font-weight: 900;font-size: 24px}
+        .user>input{height:20px;vertical-align: middle;outline:none;border-radius: 5px;}
+.userphoto>img{width: 40px;height: 40px; margin:3px ;vertical-align: middle;opacity: .5}
+        .userphoto>img:hover{opacity:1}
+        textarea{margin-top: 10px}
+        #redborder{border: 1px red solid ;opacity:1 }
+        .hint{color:darkslategray}
+        .sub{  width: 80px;height: 30px;text-align: center;line-height: 30px;outline:none;
+            margin:10px;color: #ffffff;background: deeppink;border-radius:8px}
+        .sub_text{float: right}
+        .speak{background: #eeeeee;height: 60px;margin-top:60px;margin-right: 30px;position: relative}
+        .speaktext{width: 100px;height: 30px;line-height: 30px ;background: #ffffff;position: absolute;bottom: 0;
+                    left: 30px;text-align: center;}
+        .show>li{  width: 600px;word-break: break-all ;overflow: hidden;transition: all .5s}
+        .show>li>button{float: right;vertical-align: top}
+        .show>li>dl>dt ,.show>li>dl>dd{float: left}
+        .dele{margin-right: 50px}
+    </style>
+</head>
+<body>
+<div class="bg">
+    <p>来说说你在想什么</p>
+    <div class="user"><input type="text" class="username" ><span class="userphoto"></span></div>
+    <textarea name="" id="" cols="75" rows="10"></textarea>
+   <div class="sub_text"><span class="hint"></span><button class="sub"> 发送</button></div>
+<div class="speak"><span class="speaktext">大家在说</span></div>
+    <ul class="show"></ul>
+</div>
+</body>
+<script>
+    var user=document.getElementsByClassName("user")[0];
+    var username=document.getElementsByClassName("username")[0];
+    var userphoto=document.getElementsByClassName("userphoto")[0];
+    var hint=document.getElementsByClassName("hint")[0];
+    var sub=document.getElementsByClassName("sub")[0];
+    var textarea=document.getElementsByTagName("textarea")[0];
+    var show=document.getElementsByClassName("show")[0];
+    var sum=0;
+    var sk=-1;
+    var arr=[];
+    for( var i=0;i<9;i++)
+    { var img=new Image();
+    img.src="images/face"+i+".gif";
+   arr.push(img);
+    userphoto.appendChild(img);}
+    userphoto.addEventListener("click",clickHandler)
+    textarea.addEventListener("input",inputHandler);
+        sub.addEventListener("click",clickHandler)
+    function clickHandler(e){
+          if (this===userphoto){
+              if(~sk) arr[sk].id="";
+            sk = Number(e.target.src.slice(-5, -4));
+            e.target.id="redborder";
+            }
+          else  if (e.target===sub){
+
+                        if(sk!==-1&&username.value!==""&&textarea.value!=="")
+                            {var li=document.createElement("li");
+                                var dl=document.createElement("dl");
+                                var dt=document.createElement("dt");
+                                var date=new Date();
+                                 arr[sk].id="";
+                                dt.appendChild(arr[sk].cloneNode());
+                                dl.appendChild(dt);
+                                dl.innerHTML+="<dd>"+username.value+":"+textarea.value+"<br>"+date.toLocaleTimeString()+"</dd>";
+                                 li.appendChild(dl);
+                                li.innerHTML+='<button class="dele">删除</button>';
+                                show.appendChild(li);
+                                 sk=-1;username.value="";textarea.value="";hint.textContent="还能输入"+140+"个字";
+                                var dele=document.getElementsByClassName("dele")[sum];
+                                sum++;
+                                    dele.addEventListener("click",clickdelete);
+
+                             }
+                         else  alert("请输入完整");
+                        }}
+    function clickdelete(e) {
+
+     var a= e.target.parentNode.remove();
+        sum--;
+    }
+    function inputHandler(e) {
+        var s=140-Number(textarea.value.length);
+        if (!s)textarea.value=textarea.value.slice(0,139);
+        hint.textContent="还能输入"+s+"个字";
+    }
+
+
+
+</script>
+</html>

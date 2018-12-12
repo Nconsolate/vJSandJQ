@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .regform{margin-left: 280px;margin-top: 50px}
+        #texts{margin-left: 280px}
+        .passform{margin-left: 400px ;margin-top:10px;display:none;}
+        .passhin{display:inline-block;text-align:center;
+            line-height:20px;width:100px;height: 20px;margin: 2px;color: grey }
+    </style>
+</head>
+<body>
+<form action="">
+
+<div class="regform">密码：<input type="password" id="password" name="password"></div>
+
+        <div id="texts"></div>
+    <div class="passform">
+<div class="passhin">弱</div>
+<div class="passhin">中</div>
+<div class="passhin">强</div>
+    </div>
+</form>
+<script>
+var password=document.getElementById("password");
+var texts=document.getElementById("texts");
+var div1=document.getElementsByClassName("passhin")[0];
+var div2=document.getElementsByClassName("passhin")[1];
+var div3=document.getElementsByClassName("passhin")[2];
+var passform=document.getElementsByClassName("passform")[0];
+password.addEventListener("input",inputHandler)
+    function inputHandler(e) {
+    if(password.value.length<8||password.value.length>16)
+    {   passform.style.display="none";
+    texts.textContent="请输入8-16位密码";
+    if (password.value.length>16)
+       password.value=password.value.substr(0,16);
+   }
+    else{ if(/\d{8,16}$|[a-z]{8,16}$|[A-Z]{8,16}$/.test(password.value)){
+        cleanstyle();
+        setstyle(1);
+      }
+            else if (/[0-9a-z]{8,16}$|[a-zA-Z]{8,16}$|[A-Z0-9]{8,16}$/.test(password.value))
+            {
+         cleanstyle();
+         setstyle(2);
+
+         }
+    else if (/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/.test(password.value))
+    {
+    cleanstyle();
+setstyle(3);
+    }
+        passform.style.display="block";
+    }
+        }
+function cleanstyle() {
+    div1.style.cssText="";div2.style.cssText="";div3.style.cssText="";
+    texts.textContent="";
+}
+function setstyle(n) {
+    switch (n){
+        case 1:  div1.style.background="pink";div1.style.color="white";
+                div2.style.background="#e4e4e4";
+                div3.style.background="#e4e4e4";
+                break;
+        case 2:   div1.style.background="yellow";div1.style.color="yellow";
+                    div2.style.background="yellow";div2.style.color="white";
+                    div3.style.background="#e4e4e4";
+            break;
+        case 3: div1.style.background="green";div1.style.color="green";
+                div2.style.background="green";div2.style.color="green";
+                div3.style.background="green";div3.style.color="white";
+                break;
+        }
+
+}
+//      (?=pattern)  正向肯定预查，在任何匹配pattern的字符串开始处匹配查找字符串。
+// 这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。
+// 例如，“Windows(?=95|98|NT|2000)"能匹配"Windows2000"中的"Windows"，
+// 但不能匹配"Windows3.1"中的"Windows"。预查不消耗字符，也就是说，
+// 在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，
+// 而不是从包含预查的字符之后开始。
+//预查找  以""开始，即字符串头部开始 查找 遇到[0-9]结尾若无则为null，
+//以""开始，即字符串头部开始 查找 遇到[a-z]结尾若无则为null，
+//以""开始，即字符串头部开始 查找 遇到[A-Z]结尾若无则为null，
+//查找以[0-9a-zA-Z]开头以[0-9a-zA-Z]结尾，长度为8到20
+// console.log(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,20}$/.test(password.value))
+
+</script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0}
+    </style>
+    <script src="js/Method.js"></script>
+</head>
+<body>
+    <script>
+        var imgDic,
+            rollImg,
+            imgCon,
+            direction,
+            prevDot,
+            ul;
+        var imgNames=["left.png","right.png","a.jpeg","b.jpeg","c.jpeg","d.jpeg","e.jpeg"];
+        var position=0;
+        var bool=false;
+        var autoBool=false;
+        var speed=10;
+        var delayTime=120;
+        var list=["a","b","c","d","e"];
+        Method.reload(imgNames,"img/",init);
+        animation();
+
+        function init(dic) {
+            imgDic=dic;
+            /*
+            *  设置所有样式的对象
+            * */
+            var rollImgStyle={width:imgDic["a"].width+"px",height:imgDic["a"].height+"px",overflow:"hidden",position:"relative",margin:"auto"};
+            var imgConStyle={width:imgDic["a"].width+"px",height:imgDic["a"].height+"px",fontSize:"0px",position:"absolute"};
+
+            /*
+            * 创建轮播图的外容器和轮播图的图片容器
+            *
+            * */
+            rollImg=Method.createElem("div",document.body,rollImgStyle);
+            imgCon=Method.createElem("div",rollImg,imgConStyle);
+            imgCon.appendChild(imgDic["a"]);
+//            创建左右按钮
+            createLeftRightBn();
+//            创建ul
+            createUl();
+//            侦听轮播图外容器的鼠标进入和鼠标离开事件
+            rollImg.addEventListener("mouseenter",mouseHandler);
+            rollImg.addEventListener("mouseleave",mouseHandler);
+        }
+        /*
+        *    鼠标进入和离开事件函数
+        * */
+        function mouseHandler(e) {
+//            如果鼠标进入时
+            if(e.type==="mouseenter"){
+//                鼠标进入这个轮播图，停止自动轮播，将当前时间间隔重置为120
+                autoBool=false;
+                delayTime=120;
+//                鼠标离开时
+            }else if(e.type==="mouseleave"){
+//                当鼠标离开时，让轮播图进入自动轮播
+                autoBool=true;
+            }
+        }
+
+
+        /*
+        *
+        * 创建小圆点的ul
+        *
+        * */
+        function createUl() {
+//            设置ul样式
+            var ulStyle={listStyle:"none",position:"absolute",bottom:"10px"};
+//            设置li样式
+            var liStyle={width:"20px",height:"20px",float:"left",marginLeft:"10px",border:"1px solid rgba(255,0,0,0.5)",borderRadius:"15px",backgroundColor:"rgba(255,0,0,0)"};
+//            创建ul，并且设置ul样式
+            ul=Method.createElem("ul",rollImg,ulStyle);
+//            循环list，因为imgNames中多了两个左右按钮图片，因此在这里-2
+            for(var i=0;i<imgNames.length-2;i++){
+//                创建所有li
+                var li=Method.createElem("li",ul,liStyle);
+//                给每个li增加num属性，后面我们可以用来判断当前点击的是第几个li
+                li.num=i;
+            }
+//            设置当前的小圆点样式
+            changeDot();
+//            让ul居中
+            ul.style.left=(imgDic["a"].width-ul.offsetWidth)/2+"px";
+            ul.addEventListener("click",dotClickHandler)
+        }
+        /*
+        *  创建左右按钮
+        *
+        * */
+        function createLeftRightBn() {
+//            左按钮样式
+            var leftStyle={position:"absolute",left:"10px",top:(imgDic["a"].height-imgDic["left"].height)/2+"px"};
+//            右按钮样式
+            var rightStyle={position:"absolute",right:"10px",top:(imgDic["a"].height-imgDic["right"].height)/2+"px"};
+//            将左右按钮放在rollImg大容器中
+            rollImg.appendChild(imgDic["left"]);
+            rollImg.appendChild(imgDic["right"]);
+//            设置左右按钮的样式
+            Method.setStyle(imgDic["left"],leftStyle);
+            Method.setStyle(imgDic["right"],rightStyle);
+//            给左右按钮增加点击事件
+            imgDic["left"].addEventListener("click",clickHandler);
+            imgDic["right"].addEventListener("click",clickHandler);
+        }
+        
+        /*
+        *  点击左右按钮的事件函数
+        *
+        * */
+        function clickHandler(e) {
+            if(bool) return;
+//            如果当前被点击的对象是left图片时
+            if(this===imgDic["left"]){
+//                设置变量方向是左
+                direction="left";
+//                让当前的图片定位数+1
+                position++;
+//                如果当前的定位数超过图片数组长度-3（里面多了left和right两张图片，而且position从0开始计算）
+                if(position>imgNames.length-3){
+//                    让他为0
+                    position=0;
+                }
+//                如果当前点击的对象是right图片时
+            }else if(this===imgDic["right"]){
+//                设置变量方向是右
+                direction="right";
+//                让当前的图片定位数-1
+                position--;
+//                如果定位数是负值时
+                if(position<0){
+//                    当前的定位数为图片数组长度-3
+                    position=imgNames.length-3;
+                }
+            }
+            changeDot();
+            insertImg();
+        }
+        /*
+        * 小圆点点击事件函数
+        *
+        * */
+        function dotClickHandler(e) {
+            if(bool) return;
+//            侦听的点击对象是ul，但是我们使用使用的是li
+//            e.target就是li，目标对象
+//            如果当前点击的小圆点的计数num和当前定位图片相同，这时候不作处理，直接跳出当前函数
+            if(e.target.num===position) return;
+//            如果当前点击的小圆点的技术num大于当前图片的定位
+            if(e.target.num>position){
+//                设置方向向左
+                direction="left";
+//            如果当前点击的小圆点的技术num小于当前图片的定位
+            }else if(e.target.num<position){
+//                设置方向向右8
+                direction="right";
+            }
+//            设定当前position是当前被点击小圆点的计数num
+            position=e.target.num;
+            changeDot();
+            insertImg();
+        }
+        
+        /*
+        * 修改小圆点样式
+        * */
+        function changeDot() {
+//            如果上次的小圆点存在的情况下
+            if(prevDot){
+//                设置上次的小圆点是透明
+                prevDot.style.backgroundColor="rgba(255,0,0,0)";
+            }
+//            设置这一次的小圆点是ul中的当前图片的定位对应的小圆点
+            prevDot=ul.children[position];
+//            并且设置这个元素背景色红色半透
+            prevDot.style.backgroundColor="rgba(255,0,0,0.5)";
+        }
+
+        /*
+        *  插入图片在原图的前后
+        *
+        * */
+        function insertImg() {
+//            设置图片的外容器是两个图片的宽度
+            imgCon.style.width=imgDic["a"].width*2+"px";
+//            如果方向是左边，需要图片向左移动
+            if(direction==="left"){
+//                设置了图片容器的位置是0的位置
+                imgCon.style.left="0px";
+//                在这个图片容器的尾部添加下指定位置的图片
+//                position就是上面点击按钮确定的定位位置，在数组list中对应字符正好就是需要调用图片的名称
+//                根据图片名称的key从图片字典中取出图片放在容器的尾部
+                imgCon.appendChild(imgDic[list[position]]);
+//                如果方向是右边，需要图片向右移动
+            }else if(direction==="right"){
+//                取出指定的定位图片，插入容器的最前面
+                imgCon.insertBefore(imgDic[list[position]],imgCon.firstElementChild);
+//                显示时因为我们需要显示的是原图片，被插入的图片先不显示，所以就把整个图片容器向左移动负的图片宽度
+                imgCon.style.left=-imgDic["a"].width+"px";
+            }
+            bool=true;
+        }
+
+
+        /*
+        *  动画函数，每帧执行一次，每秒执行60帧，平均16.66666667毫秒执行一次
+        *
+        * */
+        function animation(){
+            requestAnimationFrame(animation);
+//            如果进入自动轮播时，autoBool是true的时候
+            if(autoBool){
+//                没进入一次让时间间隔-1
+                delayTime--;
+//                如果当这个时间间隔变为0的时候
+                if(delayTime===0){
+//                    重新让事件间隔变为240，这个时间包括了当前这个图片轮播到下一个图片的时间和下一次轮播的间隔事件
+//                    240,相当于执行240次这个函数，也就是相当于16.66667*240毫秒，就是4秒钟
+                    delayTime=240;
+//                    模拟自定义鼠标点击了left图片的事件
+                    imgDic["left"].dispatchEvent(new MouseEvent("click"));
+                }
+            }
+//            bool是控制是否进入动画，如果bool是false，不进入后面程序，不执行容器向左右移动
+            if(!bool) return;
+
+//            如果方向是向左
+            if(direction==="left"){
+//                每次进入该动画时，让图片容器向左移动，也就是在原有的left基础上减去speed
+                 imgCon.style.left=imgCon.offsetLeft-speed+"px";
+//                 如果当前向左的位置已经到达负的图片的宽度位置，也就是前面的那张图一起从视口内消失
+                if(imgCon.offsetLeft<=-imgDic["a"].width){
+//                    设置bool是false，下一帧执行动画函数时不再进入这里了，也就不会再移动
+                    bool=false;
+//                    图片容器的最前一个元素删除
+                    imgCon.firstElementChild.remove();
+//                    将图片容器拉回到0像素，因为，如果删除图片前面元素，后面的图片就会补充到前面去，
+//                  因此这样拉回可以让这个图片仍然处于视口
+                    imgCon.style.left="0px";
+                }
+//                如果方向是向右
+            }else if(direction==="right"){
+//                如果图片向右，我们需要让图片外容器的位置不断向右移，也就是让图片的left不断增大
+                imgCon.style.left=imgCon.offsetLeft+speed+"px";
+//                原有图片的容器在上面被设置了负的图片宽度，这时候增大后将慢慢回到正值，这是后我们就停止这个效果
+                if(imgCon.offsetLeft>=0){
+//                    设置bool是false，下次不再进入动画
+                    bool=false;
+//                    删除这个图片容器的最尾部元素
+                    imgCon.lastElementChild.remove();
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>

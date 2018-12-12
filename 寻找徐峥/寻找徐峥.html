@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .bg{
+            width: 600px;
+            height: 600px;margin: 50px auto;
+        font-size: 0;border: 1px solid #000000;}
+
+    </style>
+</head>
+<div class="bg"></div>
+<body>
+<script>
+    var bg=document.getElementsByClassName("bg")[0];
+    var arr=[];
+    var n=2;
+    createimg(n);
+    bg.addEventListener("click",clickHandler);
+
+    function clickHandler(e) {
+        if(e.target.src.slice(-5, -4)==1){clearimg();n++ ; createimg(n);}
+       else {var sele=confirm("你在第"+Number(n-1)+"关失败了，点击确定键重新开始，点击取消继续从本关游戏");
+                if(sele==true){clearimg();n=2;createimg(n);} }
+    }
+    function clearimg(){
+        arr.forEach(function (list,index) {
+            list.remove();
+        })
+        arr.length=0;
+        console.log(arr);
+    }
+
+    function createimg(n) {
+        for(var i=0;i<n*n;i++) {
+            var img = new Image();
+            img.src = "images/" + 2 + ".png";
+            img.style.width=600/n+"px";
+            img.style.height=600/n+"px";
+        if (i===n*n-1)img.src="images/" + 1 + ".png";
+       arr.push(img);
+        } arr.sort(function () {return Math.random()-0.5;
+        })
+        for(var j=0;j<arr.length;j++) bg.appendChild(arr[j]);
+    }
+</script>
+
+</body>
+</html>

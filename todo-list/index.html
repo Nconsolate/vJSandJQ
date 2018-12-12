@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>todo-list</title>
+    <link rel="stylesheet" href="https://g.alicdn.com/msui/sm/0.6.2/css/sm.min.css">
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- header start -->
+        <header class="bar bar-nav">
+            <a class="icon icon-star pull-left"></a>
+            <a class="icon icon-edit pull-right" @click="addflag=!addflag"></a>
+            <h1 class="title">标题</h1>
+        </header>
+        <!-- header   end -->
+        <!-- add start -->
+        <div class="bar bar-header-secondary" v-show="addflag">
+            <div class="searchbar" :class="{'searchbar-active':focusflag}">
+                <a class="searchbar-cancel" @click="addTodo()">添加</a>
+                <div class="search-input">
+                    <label class="icon icon-edit" for="add"></label>
+                    <input type="text" id='add' placeholder='请输入待办事项...' @focus="focusflag=true" v-model="addtext" />
+                </div>
+            </div>
+        </div>
+        <!-- add end -->
+        <!-- card content start -->
+        <div class="content" ref="content">
+            <div class="card" v-for=' todo in newTodos ' :key=' todo.id '>
+                <div class="card-content">
+                    <div class="card-content-inner">
+                        {{ todo.text }}
+                        <div class="btn-box">
+                            <button @click=' todo.flag = !todo.flag ' :class='{ "button-fill":todo.flag }' type="button"
+                                class="button  button-success">
+                                <i class="icon icon-check"></i>
+                            </button>
+                            <button @click=' check( todo.id,todo.flag ) ' type="button" class="button button-danger">
+                                <i class="icon icon-remove"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- casr content end -->
+
+        <!-- card mask start -->
+        <div class="mask-box" v-show=' isMaskShow ' @click=' isMaskShow = false '>
+            <div class="modal modal-in" style="display: block; margin-top: -57px;">
+                <div class="modal-inner" style="background:#fff;">
+                    <div class="modal-text">你真的舍得删除我吗？</div>
+                </div>
+                <div class="modal-buttons " @click=' removeTodo( idSave ) '>
+                    <span class="modal-button modal-button-bold" style="background:#fff;">确定</span>
+                </div>
+            </div>
+
+            <!-- mask -->
+            <div class="mask">
+
+            </div>
+        </div>
+        <!-- card mask end -->
+
+
+        <!-- bottom start -->
+        <div class="bottom-btn-boxs" ref="bottom">
+            <div @click='currentType = btn.type' :class='["circle-"+btn.theme,currentType == btn.type ? "circle-fill":""]'
+                v-for=' btn in bottomBtns' :key=' btn.id ' class="circle">
+                {{ btn.title }}
+            </div>
+
+        </div>
+        <!-- bottom end -->
+
+    </div>
+</body>
+<script src="./base/vue.js" charset="utf-8"></script>
+<script src="./index.js" charset="utf-8"></script>
+
+</html>

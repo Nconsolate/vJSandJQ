@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    *{margin: 0;
+        padding: 0;}
+    body{overflow: hidden}
+.ball{width: 50px;
+height: 50px;
+border-radius: 25px;
+background: #00ffff;
+position: absolute;}
+    .box{width: 200px;
+    height: 20px;
+    background: #00ff00;
+    position: absolute;bottom: 40px;
+   }
+    .start {width: 50px;height: 50px;position: absolute;left: 40px;top: 40px ;
+        background: #ff0000; }
+
+</style>
+<body>
+<div class="ball"></div>
+<div class="box"></div>
+</body>
+<script>
+    var ball=document.querySelector(".ball");
+    var box=document.querySelector(".box");
+    var start=document.querySelector(".start");
+    var speedX;
+    var speedY;
+    var leftbool;
+    var rightbool;
+    var stateX;
+    var stateY;
+    var bool;
+    var boxspeed;
+        init();
+    animation();
+    function init(){
+       leftbool=false;
+       rightbool=false;
+        speedX=10;
+       speedY=10;
+        stateX="right";
+     stateY="down";
+        bool=false;
+        boxspeed=30;
+        randomPositionBall(ball);
+        document.removeEventListener("keydown",keyHandler);
+        document.removeEventListener("keyup",keyHandler);
+        document.addEventListener("keydown",keyHandler);
+        document.addEventListener("keyup",keyHandler);
+    }
+    function randomPositionBall(ele){
+        ele.style.left=Math.random()*(document.documentElement.clientWidth-ele.clientWidth)+"px";
+        ele.style.top=Math.random()*(document.documentElement.clientHeight-ele.clientWidth)/4+"px";
+    }
+    function keyHandler(e) {
+        if (e.type==="keydown")
+        {if (e.keyCode===37){leftbool=true;rightbool=false}
+        else if (e.keyCode===39){leftbool=false;rightbool=true;}
+        }
+        else if (e.type==="keyup"&&(e.keyCode===37||e.keyCode===39))
+        {leftbool=false;rightbool=false;}
+    }
+    function boxMove() {
+        if (leftbool){
+            box.style.left=box.offsetLeft-boxspeed+"px";
+            if (box.offsetLeft<=0) box.style.left=0;
+        }
+        if (rightbool){
+            box.style.left=box.offsetLeft+boxspeed+"px";
+            if (box.offsetLeft+box.clientWidth>=document.documentElement.clientWidth)
+                box.style.left=document.documentElement.clientWidth-box.clientWidth+"px";
+        }
+
+    }
+    function ballMove() {
+        switch (stateX){
+            case "left":
+                if (ball.offsetLeft<=0)
+                {speedX=-speedX;
+                stateX="right";
+                console.log(document.documentElement.clientHeight)}
+                break;
+            case "right":
+                if (ball.offsetLeft+ball.clientWidth>=document.documentElement.clientWidth)
+                {     speedX=-speedX;
+                stateX="left";}
+                break;
+        }
+        switch (stateY){
+            case "up":
+                if (ball.offsetTop<=0)
+                {speedY=-speedY;
+                    stateY="down";}
+                break;
+            case "down":
+                if (bool) {bool=false;speedY = -speedY;stateY="up";}
+                else if (ball.offsetTop+ball.clientWidth>=document.documentElement.clientHeight)
+                { speedY =-speedY;alert("gameover");
+                init();}
+                 break;
+        }
+        ball.style.left=ball.offsetLeft+speedX+"px";
+        ball.style.top=ball.offsetTop+speedY+"px";
+    }
+    function animation() {
+        requestAnimationFrame(animation);
+        ballMove();
+        boxMove();
+        hitTest();
+    }
+    function  hitTest() {
+        if (ball.offsetTop+ball.clientHeight-box.offsetTop>=1&&
+            ball.offsetLeft+ball.clientWidth/2>=box.offsetLeft&&box.offsetLeft+box.clientWidth>=ball.offsetLeft+ball.clientWidth*3/2)
+            bool=true;
+    }
+  
+
+
+</script>
+</html>

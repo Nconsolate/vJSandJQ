@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        li{list-style: none}
+        .outer{margin: 20px auto;overflow:hidden;padding:0 0 10px 10px;width:700px;border: 1px solid #000000 }
+
+        .outer>li{
+            float: left;height: 128px;width: 128px;
+        margin: 10px 10px 0 0;border: 1px solid #000000}
+        .outer>li>img{ opacity:.5;}
+       /*.outer>li>.current{opacity: 1;}*/
+    </style>
+</head>
+<body>
+<ul class="outer">
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+    <li> <img src="1.jpg" alt=""></li>
+</ul>
+<script>
+    var outer=document.getElementsByClassName("outer")[0];
+    outer.addEventListener("mouseout",mouseHandler)
+    outer.addEventListener("mouseover",mouseHandler)
+        function mouseHandler(e) {
+    /*单个style属性*/        if(e.target.nodeName==="IMG")e.target.style.opacity=e.type==="mouseout"?"":1;
+// 多个style属性       if(e.target.nodeName==="IMG")e.target.className=e.type==="mouseout"?"":"current";
+
+        }
+</script>
+</body>
+</html>

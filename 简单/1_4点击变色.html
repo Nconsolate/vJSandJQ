@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body{text-align: center;}
+        .storage{  width: 400px;margin:20px auto;  }
+        .storage>div{display:inline-block;width: 100px;height: 100px;
+            margin:0 10px;background: #000000;}
+    </style>
+</head>
+<body>
+<button>点击变色，再次点击恢复</button>
+<div class="storage">
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
+<script>
+    var btn=document.querySelector("button");
+    var changeDivs=document.querySelector(".storage").children;
+    var bool=false;
+    btn.addEventListener("click",clickHandler);
+    function clickHandler(e) {
+        bool=!bool;
+        for (var i = 0; i< changeDivs.length; i++)
+            bool? changeDivs[i].style.background = "red": changeDivs[i].style.cssText = "";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		*{
+			margin:0;
+			padding: 0;
+		}
+		#search{
+			width: 600px;
+			margin:0 auto;	
+			margin-top: 100px;
+			position: relative;
+		}
+		#search input{
+			width: 480px;
+			height: 100%;
+			border: 1px solid #b6b6b6;
+			height: 20px;
+		    padding: 9px 7px;
+		    font: 16px arial;
+		    border: 1px solid #b8b8b8;
+		    border-bottom: 1px solid #ccc;
+		    border-right: 0;
+		    vertical-align: top;
+		    outline: none;
+		    box-shadow: none;
+		    -webkit-appearance: textfield;
+		    background-color: white;
+		    -webkit-rtl-ordering: logical;
+		    user-select: text;
+		}
+
+		#search button{
+			cursor: pointer;
+			box-sizing: border-box;
+		    width: 97px;
+		   	height: 40px;
+		    line-height: 38px;
+		    padding: 0;
+		    border: 0;
+		    background: none;
+		    background-color: #38f;
+		    font-size: 16px;
+		    color: white;
+		    box-shadow: none;
+		    font-weight: normal;
+		 	margin-left: -20px;
+		}
+		
+		.result{
+			position: absolute;
+			padding: 9px 7px;
+			background: #ddd;
+
+		}
+
+		.search-res{
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 480px;
+			border: 1px solid #b6b6b6;
+			border-top: none;
+		}
+
+		.search-res li{
+			list-style-type: none;
+			line-height: 20px;
+			padding: 2px 5px;
+			margin:20px;
+			border-bottom: 1px solid #b6b6b6;
+		}
+	</style>
+</head>
+<body>
+	<div id="search">
+		<input type="text">
+		<button>嗖嗖嗖一下</button>
+		<ul class="search-res">
+
+		</ul>
+	</div>
+</body>
+<script type="text/javascript">
+	
+		var otxt = document.getElementById("search").children[0];
+		var olist = document.querySelector(".search-res");
+		
+		var obtn = document.querySelector("button")
+
+		
+		
+		obtn.onclick = function(){
+			location.href = "https://www.baidu.com/s?wd="+otxt.value
+		}
+		
+		otxt.oninput = function(){
+//		    input输入框内容改变，执行jsonp函数
+			jsonp('https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su',{
+				wd:this.value,
+				_fnName:"cb",
+				cb:"akjsdkajs"
+			}).then(function(res){
+//			    res表示从服务器获取的数据  s由百度制定  接口中存在的s
+//				res.s.forEach(function(value,key,arr){})
+				var str = ""
+				for(var i=0;i<3;i++){
+					if(i<res.s.length){
+						str += `<li>${res.s[i]}</li>`
+					}
+				}
+				olist.innerHTML = str;
+				olist.onclick=function (e) {if (e.target.nodeName=="LI")
+				    otxt.value=e.target.textContent; }
+			})
+		}
+
+//		otxt.onkeyup = function(){
+//			console.log(this.value)
+//		}
+	
+		function jsonp(url,data){
+//		    立即执行Promise后面括号内的函数（该函数2个参数，对应then中的两个函数）
+			var p = new Promise(function(success){
+//				当执行window下的cb下的函数 也就是这里的akjsdkajs  将其参数传给then中的函数
+//				注 在php等非html页面中执行（这里暂时就认为是php）  如下  将获取的数据传回html、
+
+//				也就是执行顺序是input框内容改变，
+// 通过jsonp跨域向php发送拼接url(+data)这里是客户需要搜索的数据等
+//php通过data中cb对应的回调函数 将其需要的data数据(这里指需要写入li的数据)传递给html操作
+//input变化 传递数据执行Promise 等待状态改变 发送数据 返回数据 Promise状态改变 执行then 操作数据 操作页面
+// <?php     $data = 3.1415926;
+//           echo "akjsdkajs(".$data.")";    相当于console.log(akjsdkajs(data))
+// ?>
+				window[data[data["_fnName"]]] = function(res){
+					success(res)
+				}
+				
+				var str = ""
+				for(var i in data){
+					str = str + i + "=" + data[i] + "&";
+				}
+				var d = new Date()
+				url = url + "?" + str + "_t=" + d.getTime();
+                document.body.lastChild.remove();
+				var script = document.createElement("script");
+				script.src = url;
+				document.body.appendChild(script);
+
+//				跨域执行
+			})
+			return p;
+		}
+		
+//		1.跨域:
+//			jsonp是前端的解决方式
+//			后台的解决方式是CORS
+//			
+//		2.不管是jsonp还是CORS,都必须得到后台的允许
+//		
+//		3.如果以后遇到了跨域的接口,但是没有使用jsonp也能拿到数据
+//			直接使用ajax就能跨域请求数据
+//			后台使用CORS解决跨域问题
+//		
+//		4.跨域的方式有很多,前端原理几乎都是相通的,只是写法不同
+		
+</script>
+</html>

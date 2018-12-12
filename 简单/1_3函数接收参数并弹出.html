@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        input,button{display: block;margin: 20px auto;}
+    </style>
+</head>
+<body>
+<input type="text" value="北京市">
+<input type="text" value="朝阳区">
+<button>传参</button>
+<script>
+    var inputs=document.getElementsByTagName("input");
+    var btn=document.querySelector("button");
+    btn.addEventListener("click",clickHandler);
+    function clickHandler(e) {
+        alerts(inputs);
+    }
+    function alerts(arr) {
+        for (var i=0;i<arr.length;i++) alert(arr[i].value);
+    }
+</script>
+
+</body>
+</html>

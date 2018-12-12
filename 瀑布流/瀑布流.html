@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0;padding: 0}
+        ul{list-style: none}
+    </style>
+    <script src="js/Method.js"></script>
+</head>
+<body>
+    <ul></ul>
+    <script>
+        //ul是最大的容器
+        var ul;
+//        图片当前的名称
+        var num=2;
+//        li宽度是计算后的每列容器宽度
+        var liWidth;
+//        每列容器最大高度的数组
+        var liHeightList=[];
+        //            创建图片
+        var img=new Image();
+        var bool=false;
+//        这是定义一个常量表示当前页面中有多少列容器
+        const COL=4;
+
+        init();
+        function init() {
+
+//            获取ul
+            ul=document.querySelector("ul");
+//            根据COL的列数，计算每个li的宽度
+            liWidth=document.documentElement.offsetWidth/COL-20;
+            for(var i=0;i<COL;i++){
+//                循环COL列数，创建li，设置样式
+                Method.createElem("li",ul,{float:"left",width:liWidth+"px",margin:"5px"});
+//           就给liHeightList添加COL个0，刚开始没有图片时，每个li的高度都是0
+                liHeightList.push(0);
+            }
+
+//            侦听加载
+            img.addEventListener("load",loadHandler);
+//            给图片地址
+            img.src="img/"+num+"-.jpg";
+            document.addEventListener("scroll",scrollHandler);
+        }
+        
+        function loadHandler(e) {
+
+//           最小高度的数组中的索引值
+           var index=getMinIndex();
+//          li就是最小高度对应索引的那个li列
+           var li=ul.children[index];
+//           宽度比例
+            var scale=this.width/liWidth;
+//           设置这个li的高度
+           this.style.width=liWidth+"px";
+
+//           获取当前图片的高度
+           var height=this.height/scale;
+//           把当前图片的高度累加在对应的列所在索引的高度值之上，这是liHeightList就存储了当前加入这个图片高度的数据了
+//          首先按顺序加载1，2，3，4张图片 然后根据高度加载高度最低的那列的下一张图片，
+            liHeightList[index]=liHeightList[index]+height;
+//            克隆图片
+            var image=this.cloneNode(false);
+//            把这个图片放在li中
+            li.appendChild(image);
+//            num值不断变化加载新图
+           num++;
+         if(num==79){
+              num=2;
+      }
+//           加载新图
+            if(document.documentElement.scrollHeight-document.documentElement.scrollTop<document.documentElement.clientHeight*5){
+                this.src="img/"+num+"-.jpg";   //如果剩余高度小于5个视口高度，就加载新图
+            }else{
+                bool=true;                  //否则就把bool变成true。大于5个视口高度之前为true。小于5个视口高度不变化，也为true
+            }
+
+        }
+
+        /*
+        *   返回当前高度数组中最小的高度对应的索引
+        *
+        * */
+        function getMinIndex() {
+
+            var min=Math.min.apply(null,liHeightList);
+            return liHeightList.indexOf(min);
+        }
+
+        /*
+        *document.documentElement.scrollHeight   文档当前滚动内容的高度
+        * // 会随着内容图片的加载，而变大
+        *document.documentElement.scrollTop     文档当前滚动条所在高度
+        *document.documentElement.clientHeight  当前文档窗口的高度
+        *
+        * */
+        function scrollHandler(e) {
+            if(document.documentElement.scrollHeight-document.documentElement.scrollTop<2*document.documentElement.clientHeight  && bool){
+             //剩余高度小于2个视口高度bool为true   将bool变为false.不在进入防止最后一直加载。
+                num++;
+                img.src="img/"+num+"-.jpg";
+                bool=false;
+            }
+        }
+    </script>
+</body>
+</html>

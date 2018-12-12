@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="dahuiji.css"/>
+    <style type="text/css">
+    </style>
+</head>
+<body>
+<div id="body_main" class="main">
+    <ul id="options" class="options">
+        <li value="1">超级困难</li>
+        <li value="2">非常困难</li>
+        <li value="3">比较困难</li>
+        <li value="4">就选我吧</li>
+    </ul>
+</div>
+</body>
+<script type="text/javascript">
+    //用于记分
+    function Num() {
+        this.num = 0;
+        //防止多次记分
+        this.bool = true;
+    }
+
+    Num.prototype = {
+        constructor: Num,
+        //用于更新分数，每次更新5分
+        init: function () {
+            this.num += 5;
+            eng.grade.innerHTML = "得分:" + this.num + "";
+        },
+        warning: function () {
+            clearInterval(eng.stopsEnemy1); //停止生成敌机
+            clearInterval(eng.stopsEnemy2);
+            clearInterval(eng.stopsEnemy3);
+            clearInterval(eng.stopsEnemyWelfare);//停止生成福利机
+        },
+        // 重新生成子弹 敌机等
+        goOn: function () {
+            eng.gameStart();
+        }
+    };
+
+    //引擎设置
+    function Engine(options) {
+//            保存传入的参数
+        this.btn = options.btn;
+        this.main = options.main;
+//			获取传入的地图的边框范围
+        this.main.rect = rect(this.main);
+        this.init()
+    }
+    Engine.prototype.init = function () {
+        let that = this;
+//			根据点击的选项关卡 得出hard值 并移除关卡选择框  执行load加载
+        for (let i = 0; i < this.btn.length; i++) {
+            this.btn[i].addEventListener("click", function () {
+                that.hard = this.value;
+                this.parentNode.remove();
+                that.load()
+            })
+        }
+    };
+    //		加载logo loading条 飞机血槽 飞机血量 初始分数框  暂停，重新开始按钮框
+    Engine.prototype.load = function () {
+        this.logo = createDiv("logo");
+        this.loading = createDiv("loading");
+        this.planeHpl = createDiv("planeHpl");
+        this.planeHp = document.createElement("div");
+        this.planeHp.className = "planeHp";
+        this.planeHpl.appendChild(this.planeHp);
+        this.grade = createDiv("num");
+        this.grade.innerHTML = "得分:" + 0 + "";
+        this.pauses = createDiv("pause");
+        this.pauses.innerHTML = "暂停/回车";
+        this.reStart = createDiv("restart");
+        this.reStart.innerHTML = '<a href="javascript:void(0)">重新开始/空格</a>';
+        document.onkeydown = (
+            (eve) => {
+                let e = eve || window.event;
+                let keyCode = e.keyCode || e.which;
+                if (keyCode === 13) alert("请按回车继续游戏（不建议点击确定哦）");
+                if (keyCode === 32) location.reload();
+            });
+        this.pauses.onclick = (() => {
+            alert("请按回车继续游戏（不建议点击确定哦）")
+        });
+        this.reStart.onclick = (() => {
+            location.reload()
+        });
+        let i = 0;
+//               背景图根据选择的关卡生成 更新背景 每次向下移动4px
+        this.main.style.backgroundImage = "url(images/bg" + this.hard + ".jpg)";
+        setInterval(() => {
+            this.main.style.backgroundPositionY = (i += 4) + "px";
+        }, 30);
+        let k = 1;
+//		    loading条的小飞机通过背景图的更换 模拟加载效果
+        this.loading.timer = setInterval(() => {
+            this.loading.style.backgroundImage = "url(images/loading" + ((k++) % 3 + 1) + ".png)";
+        }, 300);
+//            延时移除 加载效果  执行gameStart
+        setTimeout(() => {
+            this.logo.remove();
+            this.loading.remove();
+            clearInterval(this.loading.timer);
+            this.gameStart()
+        }, 2100);
+    };
+    //		执行飞机的创建 飞机的开火 并将参数传入
+    //不断的根据定时器间隔时间以及随机数对应概率 生成小飞机 中飞机 大飞机 福利机
+    //同一时间段 只生成一次boss
+    Engine.prototype.gameStart = function () {
+        if (!document.querySelector(".my-warplain")) {
+            plane.create(this.main);
+            plane.fire(this.hard);
+        }
+
+        this.stopsEnemy1 = setInterval(() => {
+            if (Math.random() > 0.4) {
+                new Enemy(this.main, 1)
+            }
+        }, 1000);
+        this.stopsEnemy2 = setInterval(() => {
+            if (Math.random() > 0.6) {
+                new Enemy(this.main, 2)
+            }
+        }, 3000);
+        this.stopsEnemy3 = setInterval(() => {
+            if (Math.random() > 0.8) {
+                new Enemy(this.main, 3)
+            }
+        }, 5000);
+//            福利机生成 随机敌机小兵型号  随机武器福利
+        this.stopsEnemyWelfare = setInterval(() => {
+            if (Math.random() > 0.5)
+                new Enemy(this.main, random(1, 3), random(1, 6))
+        }, 5000);
+//            boss机生成  当不存在boss机 且分数达到100以上   先清空敌机杂兵的生成福利机的生成
+//             创建（隐藏）警告框  延迟显示警告框 避免刚打死boss 就再次显示警告框
+//            延迟清除警告框 创建boss机 设置类型为100 （用于设置分数500） 并清除定时器 防止一直判断消耗内存
+//
+        this.stopBoss = setInterval(() => {
+            if (!document.querySelector(".boss") && n.num >= 100) {
+                n.warning();
+                let warning = createDiv("warning");
+                setTimeout(() => {
+                    warning.style.display = "block"
+                }, 1500);
+
+                setTimeout(() => {
+                    warning.remove();
+                    new Enemy(this.main, 100);
+                    clearInterval(this.stopBoss)
+                }, 8000)
+            }
+        }, 10000)
+    };
+    //		创建我机
+    let plane = {
+        create: function (main) {
+            this.main = main;
+//				死亡动画 图数量
+            this.dieNum = 4;
+            this.ele = createDiv("my-warplain");
+//				飞机血量
+            this.ele.hp = 20;
+//				飞机血槽
+            this.ele.maxHp = 20;
+//				飞机护盾及无敌 1为正常 0为护盾 false为无敌
+            this.ele.sw = 1;
+//				飞机生命 当为0 没血时 到结束续费选择页面
+            this.ele.being = 2;
+//				飞机碰撞伤害
+            this.ele.power = 3;
+//				子弹伤害
+            this.ele.bulletPower = 1;
+//				穿甲效果是否开启及其伤害
+            this.ele.bulletAPCR = 0;
+//				用于自锁 防止多次执行 减血或减生命等的判断
+            this.ele.bool = true;
+//				我机初始位置 下方正中
+            this.ele.style.left = (this.main.rect.w - this.ele.offsetWidth) / 2 + "px";
+            this.ele.style.bottom = 0;
+            this.ele.rect = rect(this.ele);
+//				let that = this;
+//				更新血量条  根据血量占比生成对应血量条
+            this.updateHp();
+//				侦听飞机移动事件
+            document.addEventListener("mousemove", eve => this.move());
+        },
+        move: function (eve) {
+            let e = eve || window.event;
+            rect(this.ele);
+//				飞机跟随鼠标移动
+            let l = e.pageX - this.main.offsetLeft - this.ele.rect.w / 2;
+            let t = e.pageY - this.main.offsetTop - this.ele.rect.h / 2;
+//        边界限定
+            if (l < 0) l = 0;
+            if (t < 0) t = 0;
+            if (l > this.main.rect.w - this.ele.rect.w)
+                l = this.main.rect.w - this.ele.rect.w;
+            this.ele.style.left = l + "px";
+            this.ele.style.top = t + "px";
+        },
+//            飞机开火  根据选择的关卡 选择开火的间隔 间隔生成子弹
+        fire: function (type) {
+            let that = this;
+            let t = 500;
+            switch (type) {
+                case 1:
+                    t = 800;
+                    break;
+                case 2:
+                    t = 650;
+                    break;
+                case 3:
+                    t = 400;
+                    break;
+                case 4:
+                    t = 100;
+                    break;
+            }
+            that.stops = setInterval(function () {
+//					碰撞检测第一步:要把每次创建的子弹对象存起来,等待其他单位使用
+                that.aBullet.push(new Bullet(that.ele.bulletAPCR, that.ele.bulletPower));
+
+            }, t)
+        },
+//            更新血条
+        updateHp: function () {
+            eng.planeHp.style.width = plane.ele.hp / plane.ele.maxHp * eng.planeHpl.offsetWidth + "px";
+        },
+//            飞机死亡
+        die: function () {
+            let i = 0;
+            this.ele.die = setInterval(() => {
+                if (i === this.dieNum) {
+                    clearInterval(this.ele.die);
+                    this.ele.remove();
+                } else {
+                    i++;
+                    this.ele.style.backgroundImage = "url(images/me_die" + i + ".png)";
+                }
+            }, 300)
+        },
+//            用于存储现存子弹的数组
+        aBullet: []
+    };
+
+    //		子弹    创建子弹
+    function Bullet(bulletAPCR, bulletPower) {
+        this.create(bulletAPCR, bulletPower)
+    }
+
+    Bullet.prototype = {
+        constructor: Bullet,
+        create: function (bulletAPCR, bulletPower) {
+//			    创建子弹块 设置子弹移动速度 接收参数 （子弹威力 穿甲弹）
+            this.ele = createDiv("bullet");
+            this.speed = 4;
+            this.power = bulletPower;
+            this.ele.APCR = bulletAPCR;
+            this.ele.rect = rect(this.ele);
+//                如果是穿甲弹 将样式更换成穿甲弹的样式
+            if (this.ele.APCR) this.ele.className = "APCR";
+//                子弹生成的位置在 飞机头（上中）位置
+            this.ele.style.left = plane.ele.offsetLeft + (plane.ele.offsetWidth - this.ele.offsetWidth) / 2 + "px";
+            this.ele.style.top = plane.ele.offsetTop - this.ele.offsetTop + "px";
+            this.move()
+        },
+//            子弹移动
+        move: function () {
+            let that = this;
+            this.ele.timer = setInterval(function () {
+                rect(that.ele);
+//                    子弹到达最上方 子弹死亡  否则就移动子弹
+                if (that.ele.rect.t <= 0) {
+                    clearInterval(that.ele.timer);
+                    that.die()
+                } else {
+                    that.ele.style.top = that.ele.rect.t - that.speed + "px";
+                }
+            }, 30)
+        },
+//            子弹死亡效果
+        die: function () {
+            let that = this;
+            this.ele.className = "bullet_die";
+            setTimeout(function () {
+                that.ele.style.backgroundImage = "url(images/die2.png)";
+            }, 200);
+            setTimeout(function () {
+//					碰撞检测第二步:把爆炸的子弹从数组中删除
+                for (let i = 0; i < plane.aBullet.length; i++) {
+                    if (that.ele === plane.aBullet[i].ele) {
+                        plane.aBullet.splice(i, 1);
+                    }
+                }
+                that.ele.remove()
+            }, 400)
+        }
+    };
+
+    //敌机  接收传入的参数
+    class Enemy {
+        constructor(main, type, welfare) {
+            this.main = main;
+            this.type = type;
+            this.welfare = welfare;
+            this.create()
+        }
+
+//			根据传入的参数（敌机的类型）创建敌机 设置敌机的移动速度 血量 死亡图片数量
+        create() {
+            switch (this.type) {
+                case 1:
+                    this.ele = createDiv("enemy-small");
+                    this.speed = 4;
+                    this.hp = 2;
+                    this.dieNum = 3;
+                    break;
+                case 2:
+                    this.ele = createDiv("enemy-middle");
+                    this.speed = 3;
+                    this.hp = 5;
+                    this.dieNum = 4;
+                    break;
+                case 3:
+                    this.ele = createDiv("enemy-large");
+                    this.speed = 1;
+                    this.hp = 10;
+                    this.dieNum = 6;
+                    break;
+                case 100:
+                    this.ele = createDiv("boss");
+                    this.speed = 0.5;
+                    this.hp = 100;
+                    this.dieNum = 0;
+                    break;
+            }
+            this.ele.rect = rect(this.ele);
+//				作用同plane.ele.bool
+            this.bool = false;
+//				将武器福利的类型存在敌机上
+            this.ele.welfare = this.welfare;
+//				敌机的初始位置
+            this.ele.style.left = random(0, this.main.rect.w - this.ele.offsetWidth) + "px";
+            this.ele.style.top = -this.ele.offsetHeight - 20 + "px";
+            this.move()
+        }
+
+//			敌机移动
+        move() {
+            let that = this;
+
+            this.ele.timer = setInterval(function () {
+                rect(that.ele);
+//                  	如果敌机到底 敌机死亡 否则移动
+                if (that.ele.rect.b >= that.main.rect.b) {
+                    clearInterval(that.ele.timer);
+                    if (that.type === 100) n.goOn();
+                    that.die();
+
+                } else {
+                    that.ele.style.top = that.ele.offsetTop + that.speed + "px";
+//						碰撞检测第三步:根据坐标和尺寸的计算,把敌机划出一个范围,用子弹的位置做比较
+                    for (let i = 0; i < plane.aBullet.length; i++) {
+                        if (
+                            plane.aBullet[i].ele.rect.r > that.ele.rect.l &&
+                            plane.aBullet[i].ele.rect.l < that.ele.rect.r &&
+                            plane.aBullet[i].ele.rect.t < that.ele.rect.b &&
+                            plane.aBullet[i].ele.rect.b > that.ele.rect.t
+                        ) {
+//								碰撞检测最后:先让子弹die，子弹的威力不为0时减少敌机的hp，
+//                              （默认APCR为0）减少后，将子弹的威力设置为0（只作用一次）
+//                                （APCR不为0）则子弹可以在切换死亡图片的时间内多次作用
+//   敌机die
+                            plane.aBullet[i].die();
+                            if (plane.aBullet[i].power) {
+                                that.hp -= plane.aBullet[i].power;
+                                plane.aBullet[i].power = plane.aBullet[i].power * plane.aBullet[i].APCR
+                            }
+//                             当敌机的hp小于等于0时  执行敌机死亡
+                            if (that.hp <= 0) {
+                                that.bool = true;
+                                that.die();
+                            }
+                        }
+                    }
+//						如果飞机跟敌机碰撞
+                    if (
+                        plane.ele.rect.r > that.ele.rect.l &&
+                        plane.ele.rect.l < that.ele.rect.r &&
+                        plane.ele.rect.t < that.ele.rect.b &&
+                        plane.ele.rect.b > that.ele.rect.t
+                    ) {
+//我的飞机和敌机碰撞 敌机受伤，我机根据是否有护盾和无敌判断是否受伤
+// 更新飞机血量，并给飞机0.9秒免疫伤害时间 现象为闪烁0.9秒（0.9秒内只作用一次，所以将飞机碰撞伤害设置0）
+// sw为0为护盾，免疫一次碰撞伤害   1为正常 false为开透明（碰撞无伤害）
+                        if (plane.ele.power) {
+                            that.hp -= plane.ele.power;
+                            plane.ele.hp -= plane.ele.power * plane.ele.sw;
+                            plane.updateHp();
+                            plane.ele.power = 0;
+//
+                            if (plane.ele.sw === 1) {
+                                let immune = setInterval(function () {
+//                            	        eng.num 只有刚开始的时候用1次，这里使用节省定义变量
+//                                        用于实现闪烁效果
+                                    eng.num = !eng.num;
+                                    plane.ele.style.opacity = eng.num ? 0 : "";
+                                }, 200);
+//                                    免疫伤害0.9秒结束
+                                setTimeout(function () {
+                                    clearInterval(immune);
+                                    plane.ele.style.opacity = "";
+                                    plane.ele.power = 3;
+                                }, 900)
+                            }
+//                                    如果是存在护盾  移除护盾特效  0.5秒后恢复正常
+                            else if (plane.ele.sw === 0) {
+                                plane.ele.children[0].remove();
+                                setTimeout(function () {
+                                    plane.ele.sw = 1;
+                                    plane.ele.power = 3;
+                                }, 500)
+                            }
+//                          如果是无敌 0.5秒碰撞冷却
+                            else if (plane.ele.sw === false) {
+                                setTimeout(function () {
+                                    plane.ele.power = 3;
+                                }, 500)
+                            }
+                        }
+//                                    如果飞机没血  更新血量为0 生命减1  如果还有生命 直接原地满血 更新血槽
+//                            		         如果没有生命了 就停止生成敌机 子弹 boss 飞机死亡
+//							           延时弹出付费选项
+                        if (plane.ele.hp <= 0 && plane.ele.bool) {
+                            eng.planeHp.style.width = 0;
+                            plane.ele.power = 0;
+                            plane.ele.being--;
+                            if (plane.ele.being) {
+                                plane.ele.hp = plane.ele.maxHp;
+                            }
+                            plane.updateHp();
+//                                         being为原地复活
+                            if (plane.ele.being === 0) {
+                                plane.ele.bool = false;
+                                n.warning();
+                                clearInterval(plane.stops);  //停止生成子弹
+                                clearInterval(eng.stopBoss);
+                                plane.die();
+                                setTimeout(function () {
+                                    if (confirm("游戏结束,点击确定支付1元，继续从当前关卡开始，" +
+                                            "点击取消，查看得分"))
+//                                        如果确定 重新生成飞机 生成子弹 敌机 赠送出生无敌效果4秒
+//                                                 如果取消 弹出得分
+                                    {
+                                        n.goOn();
+                                        plane.ele.sw = false;
+                                        setTimeout(function () {
+                                            plane.ele.sw = 1;
+                                            plane.ele.power = 3
+                                        }, 4000)
+                                    }
+                                    else {
+                                        alert("您的得分为" + n.num + "分,不错呦 下次继续努力");
+                                        location.reload();
+                                    }
+                                }, 2000)
+                            }
+
+                        }
+//                                     如果敌机血量小于等于0 敌机死亡
+                        if (that.hp <= 0) {
+                            that.bool = true;
+                            that.die();
+                        }
+                    }
+
+                }
+            }, 30)
+        }
+
+        die() {
+            let i = 0;
+            this.ele.die = setInterval(() => {
+                if (i === this.dieNum) {
+                    clearInterval(this.ele.die);
+//                   非正常死亡加分,如果死亡敌机携带武器包，就创建个左右移动的武器包 移除死亡元素
+                    if (this.bool) {
+                        for (let j = this.type; j > 0; j--) n.init();
+                        if (this.welfare) new CreateWelfare(this.ele);
+//					  如果死亡敌机为boss机 就延时弹出闯关成功提示 并刷新页面
+                        if (this.type === 100) {
+                            setTimeout(() => {
+                                alert("恭喜您闯关成功！继续试试更高难度的关卡吧");
+                                clearInterval(plane.stops);
+                                location.reload();
+                            }, 500)
+                        }
+                        this.bool = false;
+                    }
+                    this.ele.remove()
+                } else {
+                    i++;
+                    this.ele.style.backgroundImage = "url(images/plane" + this.type + "_die" + i + ".png)";
+                }
+            }, 200)
+        }
+    }
+
+    //		创建福利包
+    function CreateWelfare(ele) {
+        this.create(ele)
+    }
+
+    CreateWelfare.prototype = {
+       constructor:CreateWelfare,
+        create: function (ele) {
+            this.rect = rect(ele);
+            this.ele = createDiv("welfare");
+            this.ele.rect = rect(this.ele);
+            this.ele.welfare = ele.welfare;
+//          通过传入的参数确定生成的福利包的类型
+            switch (this.ele.welfare) {
+                case 1:
+                    this.ele.textContent = "护盾";
+                    break;
+                case 2:
+                    this.ele.textContent = "无敌";
+                    break;
+                case 3:
+                    this.ele.textContent = "生命";
+                    break;
+                case 4:
+                    this.ele.textContent = "满血";
+                    break;
+                case 5:
+                    this.ele.textContent = "穿透";
+                    break;
+                case 6:
+                    this.ele.textContent = "高伤";
+                    break;
+            }
+//          福利包的移动效果
+            this.speedY = 2;
+            this.speedX = 4;
+            this.ele.style.left = this.rect.l - eng.main.rect.l + (this.rect.w - this.ele.offsetWidth) / 2 + "px";
+            this.ele.style.top = this.rect.t - eng.main.rect.t + (this.rect.h - this.ele.offsetHeight) / 2 + "px";
+            this.move()
+        },
+        move: function () {
+            let that = this;
+            this.ele.timer = setInterval(function () {
+                rect(that.ele);
+//                    如果福利包到底了 则福利包死亡
+                if (that.ele.rect.b >= eng.main.rect.b) {
+                    clearInterval(that.ele.timer);
+                    that.die()
+                }
+//                    福利包与飞机碰撞了 执行飞机的武器系统 福利包死亡
+                else {
+                    if (that.ele.rect.l <= eng.main.rect.l) that.speedX = -that.speedX;
+                    if (that.ele.rect.r >= eng.main.rect.r) that.speedX = -that.speedX;
+                    that.ele.style.top = that.ele.rect.t + that.speedY + "px";
+                    that.ele.style.left = that.ele.offsetLeft + that.speedX + "px";
+                    if (
+                        plane.ele.rect.r > that.ele.rect.l &&
+                        plane.ele.rect.l < that.ele.rect.r &&
+                        plane.ele.rect.t < that.ele.rect.b &&
+                        plane.ele.rect.b > that.ele.rect.t
+                    ) {
+                        weapon(that.ele.welfare);
+                        that.die();
+                    }
+                }
+            }, 30)
+        },
+//			移除福利包
+        die: function () {
+            let that = this;
+            setTimeout(function () {
+                that.ele.remove()
+            }, 200)
+        }
+    };
+
+    function weapon(states) {
+        switch (states) {
+//		        护盾   如果飞机没有护盾或者无敌 就给飞机加效果 要是已经存在 就给飞机加分
+            case 1:
+                plane.ele.sw = 0;
+                if (!plane.ele.children.length) {
+                    let hdtx = document.createElement("div");
+                    hdtx.id = "hdtx";
+                    plane.ele.appendChild(hdtx);
+                    setTimeout(function () {
+                        plane.ele.sw = 1;
+                        hdtx.remove()
+                    }, 7000)
+                } else n.init();
+                break;
+//                无敌
+            case 2:
+                plane.ele.sw = false;
+                if (!plane.ele.children.length) {
+                    let wdtx = document.createElement("div");
+                    wdtx.id = "wdtx";
+                    plane.ele.appendChild(wdtx);
+                    setTimeout(function () {
+                        plane.ele.sw = 1;
+                        wdtx.remove()
+                    }, 7000)
+                } else n.init();
+                break;
+//                生命+1
+            case 3:
+                plane.ele.being++;
+                break;
+//                瞬间满血包；
+            case 4:
+                if (plane.ele.hp === plane.ele.maxHp) n.init();
+                else {
+                    plane.ele.hp = plane.ele.maxHp;
+                    plane.updateHp();
+                }
+                break;
+//             穿透子弹
+            case 5:
+                plane.ele.bulletAPCR = 2;
+                setTimeout(function () {
+                    plane.ele.bulletAPCR = 0;
+                }, 7000);
+                break;
+//                10倍攻击
+            case 6:
+                plane.ele.bulletPower = 10;
+                setTimeout(function () {
+                    plane.ele.bulletPower = 1;
+                }, 7000);
+                break;
+        }
+    }
+
+    //		[a,b]之间的整数
+    function random(a, b) {
+        return Math.round(Math.random() * (a - b) + b)
+    }
+
+    function rect(ele) {
+        ele.rect = {
+            l: ele.getBoundingClientRect().left,
+            r: ele.getBoundingClientRect().right,
+            t: ele.getBoundingClientRect().top,
+            b: ele.getBoundingClientRect().bottom,
+            w: ele.getBoundingClientRect().width,
+            h: ele.getBoundingClientRect().height
+        };
+        return ele.rect;
+    }
+
+    function createDiv(clas) {
+        let div = document.createElement("div");
+        div.className = clas;
+        document.getElementById("body_main").appendChild(div);
+        return div;
+    }
+
+    let eng = new Engine({
+        btn: document.getElementById("options").children,
+        main: document.getElementById("body_main"),
+    });
+    let n = new Num();
+
+</script>
+</html>

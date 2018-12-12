@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+
+	</head>
+	<body>
+
+	</body>
+	<script type="text/javascript">
+//		蛇图：提供一个范围
+//		食物：创建，随机位置
+//		蛇：创建蛇节，运动，方向（键盘），碰撞（自己，墙，食物（增加一节，刷新食物））
+
+//侦听键盘按下事件
+document.addEventListener("keydown",function(eve){
+    var e = eve || window.event;
+//    定义变量code 存 键码（兼容）
+    var code = e.keyCode || e.which;
+//    将键码传参的形式传给s的direct方法
+    s.direct(code);
+})
+//		设置单体对象  蛇图
+		var snakeMap = {
+//    设置其属性w 和h  （用于init中初始化）
+			w:800,
+			h:400,
+			init:function(){
+//			      创建div作为蛇图 并设置 其样式 存在snakeMap对象的ele属性中
+//				即snakeMap.ele指HTML中蛇图div元素
+				this.ele = document.createElement("div");
+//				用对象的w，h属性设置div的宽和高
+				this.ele.style.width = this.w + "px";
+				this.ele.style.height = this.h + "px";
+				this.ele.style.background = "#ccc";
+//				作为父级的定位
+				this.ele.style.position = "relative";
+				this.ele.style.margin = "30px auto";
+//				将创建的div通过snakeMap的ele属性值的引用 添加到body中
+				document.body.appendChild(this.ele);
+			}
+		}
+//		构造Num对象 （用于改变分数，改变关卡，根据分数和关卡改变蛇速）
+		function Num() {
+//    	设置Num的w，h属性 用于init中创建记分块，关卡块
+            this.w = 100;
+            this.h = 60;
+//            设置num属性的值为0 （记分初值为0）
+            this.num=0;
+//            设置speed属性 用于存蛇速,也可以不设置，在init中存在
+            this.speed=0;
+//           设置gamePass属性 用于存关卡值。
+           this.gamePass=1;
+//           调用Num的init方法 （init对应的匿名函数自执行）
+            this.init();
+        }
+		Num.prototype = {
+    constructor:Num,
+		init:function(){
+//       ele属性不存在时执行（用于初次设置，只有首次执行if语句 内容）
+        	if(!this.ele){
+//                创建div存在Num的ele属性中
+            this.ele = document.createElement("div");
+//            设置刚创建的元素的样式
+            this.ele.style.width = this.w + "px";
+            this.ele.style.height = this.h + "px";
+            this.ele.style.background = "#eeeeee";
+            this.ele.style.textAlign="center";
+//            文字垂直居中
+            this.ele.style.lineHeight=this.ele.style.height;
+            this.ele.style.position = "absolute";
+//            将创建的元素（记分块）定位到蛇图的左上角 （从左上角向左移动自身的宽度）
+            this.ele.style.left =- this.w + "px";
+            this.ele.style.top = 0;
+//            将记分块作为蛇图的子元素
+            snakeMap.ele.appendChild(this.ele)
+        }
+//        每执行下Num的init方法（吃到食物时更新）
+// （ 就重新更新下分数和关卡（初次执行时，num为0，更新到页面上。然后num为10 但此时没有更新
+//     ，下一次才会更新上去。所以先更新在+
+		this.ele.innerHTML="得分 : "+this.num+"<br>"+"第"+this.gamePass+"关";
+//        	更新速度
+        this.speed=310-this.gamePass*10-this.num/10;
+//            准备下次需要更新的关卡值和分数 ，下次执行init时更新上去
+        this.num+=10;
+//			根据分数判断关卡
+//			当num下次需要更新为100分时，下一次gamePass为2
+//			小于100分更新为1 大于等于100 小于200分为 2
+//			大于等于200 小于400为3   大于等于400 小于800为4
+//			大于800小于1200为 5
+      switch (Math.floor(this.num/100)){
+		  case 0:this.gamePass=1;break;
+		  case 1:this.gamePass=2;break;
+          case 2:
+		  case 3:this.gamePass=3;break;
+		  case 4:case 5:case 6: case 7:
+          this.gamePass=4;break;
+          case 8:case 9:case 10: case 11:
+          this.gamePass=5;break;
+      }
+    }
+    }
+		function Food(){
+//    构造食物属性
+			this.w = 20;
+			this.h = 20;
+			this.x = 0;
+			this.y = 0;
+			this.init();
+//			执行食物的方法
+		}
+		Food.prototype = {
+			constructor:Food,
+
+			init:function(){
+                //			设置初始化参数（只设置一次的）
+				if(!this.ele){
+					this.ele = document.createElement("div")
+					this.ele.style.width = this.w + "px";
+					this.ele.style.height = this.h + "px";
+					this.ele.style.position = "absolute";
+					snakeMap.ele.appendChild(this.ele)
+				}
+//				需要更新的参数
+//				每次更新食物替换食物的背景色为随机色
+                this.ele.style.background = this.randomColor();
+//				设置食物每次更新的间接位置（相当于表格的行和列表示td） （this指Food对象，this.random写在Food上的方法。
+
+				this.x = this.random(0,snakeMap.w/this.w - 1)
+				this.y = this.random(0,snakeMap.h/this.h - 1)
+//              由间接位置 转换为相对父元素的位置left 和top
+                        this.ele.style.left = this.x * this.w + "px"
+                		this.ele.style.top = this.y * this.h + "px"
+			},
+//			随机生成rgb颜色
+			randomColor:function () {
+			    var arr=[];
+			    for (var i=0;i<3;i++) arr.push(Math.floor(Math.random()*256));
+			    return "rgb("+arr.join()+")";
+            },
+//			填入区间 在区间内随机整数
+			random:function(a,b){
+				return Math.round(Math.random()*(a-b)+b)
+//							a<b	-》	[0,1)* a-b =(a-b,0]  （a-b，0]+b=(a,b]  a,b均为整数，
+// 																	四舍五入则[a,b] 中的整数
+			}
+		}
+
+
+//es6面向对象   创建蛇
+		class Snake{
+			constructor(){
+//			    设置属性
+				this.w = 20;
+				this.h = 20;
+//				设置上一次蛇的运动方向为空
+				this.direction1="";
+//				设置蛇的运动方向
+				this.direction2 = "right";
+                this.bool=false;
+				
+//				this.body = [[4,3,"#399"],[3,3,"#939"],[2,3,"#933"]];
+//				设置一个对象型数组存在Snake的body属性 ，每个对象存储间接位置，和颜色值
+				this.body = [{
+					x:4,
+					y:3,
+					c:"#399"
+				},{
+					x:3,
+					y:3,
+					c:"#939"
+				},{
+					x:2,
+					y:3,
+					c:"#393"
+				}]
+//				执行init方法
+				this.init()
+			}
+			init(){
+//			    将this，也就是Snake这个对象指向存在that变量中，that为Snake下init方法的局部变量
+				var that = this;
+//				this.body.forEach(function(value,index,arr){
+//				对Snake这个对象的body属性的数组进行遍历.
+				this.body.forEach(function(value){
+//				    value为那个数组下的每个对象
+//					对数组下的对象设置一次属性， 属性名是ele，
+//					即value.ele 也是Snake.body.[0或1或2...].ele
+//					遍历创建value.ele及设置样式(不存在则创建)
+					if(!value.ele){
+						value.ele = document.createElement("div");
+						value.ele.style.width = that.w + "px";
+						value.ele.style.height = that.h + "px";
+						value.ele.style.position = "absolute";
+						value.ele.style.background = value.c;
+						snakeMap.ele.appendChild(value.ele);
+					}
+//					更新 遍历  当Snake.init（）被调用 则进行遍历数组的对象
+//													根据间接位置更新每个对象的位置
+					value.ele.style.left = value.x * that.w + "px";
+					value.ele.style.top = value.y * that.h + "px";
+				})
+//				向数组的第0个对象 的属性 即蛇头div 写入文本内容为0；
+				this.body[0].ele.innerText = "0";
+//				延时执行移动方法move，延时时长为Num的speed属性的值 该值越小 移动越快
+				setTimeout(function(){
+					that.move()
+				},n.speed)
+			}
+//			接收从侦听事件中传来的参数
+            direct(type){
+//			    this指向Snake这个对象
+//				bool用于锁住键盘控制键，当键盘按下时，等待对应操作完成才能执行下一个
+// 				  防止多次快速按键，导致程序判断出错
+                if (this.bool===true) {this.bool=false;
+//                如果按下的是上下左右键，执行程序
+					if (type===37||type===38||type===39||type===40)
+				{
+//				    将当前蛇运动的方向存放在direction1属性中（表示上一次运动的方向）
+//						并根据判断当前的运动方向
+				    this.direction1=this.direction2;
+                switch(type) {
+                    case 37:
+//                        如果按下的是左键且上一次运动方向为上或者下
+//						就将按下的 左的信息 存在direction2中作为当前运动方向
+                        if (this.direction1 === "top" || this.direction1 === "bottom")
+                            this.direction2 = "left";
+                        break;
+                    case 38:
+                        if (this.direction1 === "left" || this.direction1 === "right")
+                            this.direction2 = "top";
+                        break;
+                    case 39:
+                        if (this.direction1 === "top" || this.direction1 === "bottom")
+                            this.direction2 = "right";
+                        break;
+                    case 40:
+                        if (this.direction1 === "left" || this.direction1 === "right")
+                            this.direction2 = "bottom";
+                        break;
+                } }
+                   }
+
+            }
+			move(){
+//                改变Snake下的body数组下的对象的属性值
+//                除了蛇头的移动。 从蛇尾开始，改变间接位置，蛇尾间接位置改变为它上一节蛇节的位置
+                    for (var i = this.body.length - 1; i > 0; i--) {
+                        this.body[i].x = this.body[i - 1].x
+                        this.body[i].y = this.body[i - 1].y
+                    }
+//		根据当前direction2 存储的运动方向 改变蛇头的间接位置
+                    switch (this.direction2) {
+                        case "left":
+                            this.body[0].x -= 1;
+                            break;
+                        case "right":
+                            this.body[0].x += 1;
+                            break;
+                        case "top":
+                            this.body[0].y -= 1;
+                            break;
+                        case "bottom":
+                            this.body[0].y += 1;
+                            break;
+                    }
+//                    console.log(this.direction1,this.direction2);
+//				边界条件判断，当蛇头的间接位置 移出了40*20区域时，执行
+//				注 根据蛇头的相对位置 得出的是其相对父元素的边界left 和top的位置不包括自身的宽度，
+                    if (this.body[0].x < 0 || this.body[0].y < 0 || this.body[0].x > snakeMap.w / this.w - 1 || this.body[0].y > snakeMap.h / this.h - 1) {
+                        alert("撞墙死了");
+//                        跳出move
+                        return null;
+                    }
+//                    判断除蛇头的蛇节间接位置 是否跟蛇头的间接位置重合
+                    for (var i = 1; i < this.body.length; i++) {
+                        if (this.body[0].x == this.body[i].x && this.body[0].y == this.body[i].y) {
+                            alert("撞到自己了");
+//                            跳出move
+                            return "";
+                        }
+                    }
+//                    判断蛇头是否跟食物的间接位置重合（是否吃到食物）
+                    if (this.body[0].x == f.x && this.body[0].y == f.y) {
+//                        如果重合，增加一个蛇节将其放在蛇尾位置（此时已经判断过是否碰到自己了）
+//						下次移动时，因为蛇尾位置跟上一蛇节（原蛇尾）位置相同（故现蛇尾位置不变）
+//						原其他蛇节正常移动
+//                       	颜色为食物的颜色
+                        this.body.push({
+                            x: this.body[this.body.length - 1].x,
+                            y: this.body[this.body.length - 1].y,
+                            c: f.ele.style.background,
+                        })
+//						更新食物，
+//						更新分数，关卡，蛇速
+                        f.init();
+                        n.init();
+//						如果更新后的食物跟蛇的任意蛇节位置重复
+//                        for (var q = 0; q < this.body.length; q++)
+//                            if (this.body[q].x === f.x && this.body[q].y === f.y) f.init();
+//                    }
+                        while(1) {
+                            let count=0;
+                            for (let q = 0; q < this.body.length; q++) {
+                                if (this.body[q].x === f.x && this.body[q].y === f.y)
+                                {f.init();break;}
+                                else count++;
+                            }
+                            if (count===this.body.length)break;
+                        }}
+//                    打开按键锁
+//				若操作过快可能出现类似按键失灵的现象
+//				其实是因为加了按键锁， 连续快速触发按键事件只有第一次触发有效
+                    this.bool=true;
+//                   执行对象中的init（） 写在move里主要是与init（）构成循环 实现连续更新蛇的坐标
+                this.init();
+			}
+
+		}
+//		蛇图初始化
+snakeMap.init();
+//Food Num Snake进行实例化对象
+var f = new Food();
+var n =new Num();
+var s = new Snake();
+
+		
+		
+//		计分
+//		难度
+//		关卡
+//		不能掉头,而不是掉头死
+		
+		
+		
+	</script>
+</html>

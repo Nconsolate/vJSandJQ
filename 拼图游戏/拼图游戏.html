@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="js/Method.js"></script>
+<style>
+    *{margin: 0;padding: 0}
+    table{float:left;background: url("img/4.jpg");opacity:.5;border-collapse: collapse;opacity: .5;}
+    td{box-sizing:border-box;width: 52px;height:80px;border: 1px solid #000000; }
+    div{font-size:0;position:absolute;width:300px;height:300px;left: 400px;border: 2px solid
+    #000000; }
+    div>img{position:absolute;width: 52px;
+        height: 80px;z-index: 99 }
+</style>
+<body>
+<table>
+</table>
+<div></div>
+<script>
+    var div=document.querySelector("div");
+    var table=document.querySelector("table");
+    var arr=[];
+
+    createRandomImg();
+    createTable();
+    function createRandomImg() {
+        for (var i = 0; i < 5; i++)
+            for (var j = 0; j < 5; j++) {
+                  var imgs = new Image();
+                 imgs.src = "img/img" + i + "-" + j + ".gif";
+                    div.appendChild(imgs);
+                    imgs.style.marginLeft = Math.floor(Math.random()
+                        *(Number(div.clientWidth)-Number(imgs.clientWidth))) + "px";
+                    imgs.style.marginTop = Math.floor(Math.random() *(Number(div.clientHeight)-Number(imgs.clientHeight)))
+                        + "px";
+                imgs.addEventListener("mousedown",mouseHandler);
+                }
+              }
+              function createTable() {
+                for(var m=0;m<5;m++) {
+                    arr[m]=[];
+                    var tr = document.createElement("tr");
+                    for (var n = 0; n < 5; n++)
+                    {     var td = document.createElement("td");
+                             tr.appendChild(td);
+                        arr[m][n]=td;}
+                     table.appendChild(tr);
+                }     }
+
+
+
+   function mouseHandler (e) {
+        if(e.type==="mousedown"){
+            document.dragTarget=this;
+            document.addEventListener("mousemove",mouseHandler);
+            document.addEventListener("mouseup",mouseHandler);
+            document.offsetPoint={x:e.offsetX,y:e.offsetY};
+
+
+        }else if(e.type==="mousemove"){
+
+           document.addEventListener("mouseup",mouseHandler);
+            this.dragTarget.style.marginLeft=e.pageX-div.offsetLeft-this.offsetPoint.x+"px";
+            this.dragTarget.style.marginTop=e.pageY-div.offsetTop-this.offsetPoint.y+"px";
+        }else if(e.type==="mouseup"){
+            var a1=Number(e.target.src.slice(-5,-4));
+            var a0=Number(e.target.src.slice(-7,-6));
+            if( Math.abs(e.pageX-document.offsetPoint.x-arr[a0][a1].offsetLeft)<=52 &&
+                Math.abs(e.pageY-document.offsetPoint.y-arr[a0][a1].offsetTop)<=80)
+            {   e.target.style.marginLeft=arr[a0][a1].offsetLeft-div.offsetLeft+"px";
+                e.target.style.marginTop=arr[a0][a1].offsetTop-div.offsetTop+"px";}
+        document.removeEventListener("mousemove",mouseHandler);
+        document.removeEventListener("mouseup",mouseHandler);
+
+        }
+   }
+
+</script>
+
+</body>
+</html>

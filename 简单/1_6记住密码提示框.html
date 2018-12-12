@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+.outer{margin: 20px auto;width: 200px}
+.inprompt{ display:none;margin: 20px 0;border: 3px solid orangered;padding: 5px;background: orange}
+</style>
+<body>
+<div class="outer">
+<label for="passprompt"><input type="checkbox" id="passprompt">两周内自动登陆</label>
+<div class="inprompt">为了您的信息安全，请不要在网吧或公用电脑上使用此功能</div>
+</div>
+<script>
+    var label=document.querySelector("label");
+    var inprompt=document.querySelector(".inprompt");
+    label.addEventListener("mouseenter",mouseHandler);
+    label.addEventListener("mouseleave",mouseHandler);
+
+    function mouseHandler(e) {
+      if (e.type==="mouseenter") inprompt.style.display="block";
+        else  inprompt.style.display="none";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        div{margin: 20px auto;padding:20px;box-sizing:border-box;width:200px;
+            height: 200px;background: #000000;color: #ffffff; }
+    </style>
+</head>
+<body>
+<div>鼠标移入改变样式，鼠标移出恢复</div>
+<script>
+    var changeDiv=document.querySelector("div");
+    changeDiv.addEventListener("mouseenter",mouseHandler);
+    changeDiv.addEventListener("mouseleave",mouseHandler);
+    function mouseHandler(e) {
+
+        var styles = {background: "#eeeeee", border: "red 10px solid",
+            padding: "10px", color: "red", cursor: "cell"}
+    if (e.type==="mouseenter"){
+            for (var att in styles) this.style[att] = styles[att];}
+    else this.style.cssText="";
+    }
+</script>
+</body>
+</html>

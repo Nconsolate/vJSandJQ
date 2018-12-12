@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<script src="Method.js"></script>
+<body>
+<div class="div" width="100"，height="100"></div>
+<script>
+    var div=document.querySelector(".div");
+    var div1Style={width:"100px",height:"100px",
+        backgroundColor:Method.randomColor(),position:"absolute",
+    left:Method.randomClientLeft()+"px",top:Method.randomClientTop()+"px"}
+var div1=Method.createEle("div",document.body,div1Style);
+    var div2Style={width:"100px",height:"100px",
+        backgroundColor:Method.randomColor(),position:"absolute",
+        left:Method.randomClientLeft(div),top:Method.randomClientTop()+"px"}
+var div2=Method.createEle("div",document.body,div2Style);
+    div1.addEventListener(Method.DRAG_MOVE_EVENT,dragHandler);
+Method.dragElem(div1);
+    function dragHandler(e) {
+        var divStyle1={
+            width:"50px",
+            height:"50px",
+            backgroundColor:Method.randomColor(),
+            position:"absolute",
+            left:Math.random()*(document.documentElement.clientWidth-50)+"px",
+            top:Math.random()*(document.documentElement.clientHeight-50)+"px"
+        };
+        if(Method.hitTest(div1,div2)){
+            console.log(Method.hitTest(div1,div2));
+            Method.setStyle(div2,divStyle1)
+        }
+    }
+
+</script>
+</body>
+</html>
